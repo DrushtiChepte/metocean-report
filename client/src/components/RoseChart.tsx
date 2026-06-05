@@ -21,6 +21,7 @@ export type RoseChartProps = {
   stackName?: string;
   cardClassName?: string;
   note?: string;
+  valueMode?: "count" | "percent";
 };
 
 const defaultSectors = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
@@ -54,10 +55,15 @@ function buildRoseOptions({
   classes,
   sectors,
   stackName,
+  valueMode,
 }: Required<
-  Pick<RoseChartProps, "title" | "rows" | "classes" | "sectors" | "stackName">
+  Pick<
+    RoseChartProps,
+    "title" | "rows" | "classes" | "sectors" | "stackName" | "valueMode"
+  >
 >) {
   const sectorSize = sectors.length > 1 ? sectors[1] - sectors[0] : 30;
+  const totalCount = rows.length || 1;
   const bins = sectors.map((direction) => ({
     direction,
     total: 0,
@@ -86,7 +92,9 @@ function buildRoseOptions({
     roundCap: true,
     data: displayDirectionSlots.map((direction) => {
       const binIndex = sectors.indexOf(direction);
-      return binIndex >= 0 ? bins[binIndex].classCounts[classIndex] : null;
+      if (binIndex < 0) return null;
+      const count = bins[binIndex].classCounts[classIndex];
+      return valueMode === "percent" ? (count / totalCount) * 100 : count;
     }),
     itemStyle: {
       color: roseClass.color,
@@ -132,15 +140,32 @@ function buildRoseOptions({
       }) {
         const direction = displayDirectionSlots[params.dataIndex];
         const label = directionLabels[direction] || `${direction}°`;
+        const binIndex = sectors.indexOf(direction);
 
-        if (params.value == null) {
+        if (params.value == null || binIndex < 0) {
           return "";
         }
 
-        return [
-          `<strong>${label}</strong>`,
-          `${params.seriesName}: ${params.value}`,
-        ].join("<br/>");
+        const classIdx = classes.findIndex(
+          (c) => c.label === params.seriesName,
+        );
+        const count = classIdx >= 0 ? bins[binIndex].classCounts[classIdx] : 0;
+        const formattedValue =
+          valueMode === "percent"
+            ? (params.value as number).toFixed(2) + "%"
+            : Math.round(params.value as number).toLocaleString();
+
+        const lines = [
+          `<div style="margin-bottom: 4px;"><strong>${label} (${direction}°)</strong></div>`,
+          `<div style="margin-bottom: 2px;"><strong style="color: ${classes[classIdx]?.color || "#000"}">${params.seriesName}</strong></div>`,
+          `<div>${valueMode === "percent" ? "Percentage" : "Count"}: <strong>${formattedValue}</strong></div>`,
+        ];
+        if (valueMode === "percent") {
+          lines.push(
+            `<div style="margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(0,0,0,0.1);">Count: <strong>${count.toLocaleString()}</strong></div>`,
+          );
+        }
+        return lines.join("");
       },
     },
     polar: {
@@ -176,8 +201,18 @@ function buildRoseOptions({
       },
     },
     radiusAxis: {
+      min: 0,
+      max: Math.max(
+        ...bins.map((bin) =>
+          valueMode === "percent" ? (bin.total / totalCount) * 100 : bin.total,
+        ),
+      ),
       axisLabel: {
-        show: false,
+        show: true,
+        formatter: (value: number) =>
+          valueMode === "percent"
+            ? value.toFixed(1) + "%"
+            : value.toLocaleString(),
       },
       splitLine: {
         lineStyle: {
@@ -197,6 +232,7 @@ export default function RoseChart({
   stackName = "rose",
   cardClassName,
   note,
+  valueMode = "percent",
 }: RoseChartProps) {
   const option = useMemo(
     () =>
@@ -206,8 +242,9 @@ export default function RoseChart({
         classes,
         sectors,
         stackName,
+        valueMode,
       }),
-    [title, rows, classes, sectors, stackName],
+    [title, rows, classes, sectors, stackName, valueMode],
   );
 
   return (

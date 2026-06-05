@@ -1,0 +1,394 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);font-size:13px;color:var(--color-text-primary)}
+
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.5rem}
+.nb{font-size:12px;padding:5px 16px;border:0.5px solid var(--color-border-secondary);border-radius:100px;background:transparent;color:var(--color-text-secondary);cursor:pointer;transition:all .15s;font-family:var(--font-sans)}
+.nb:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.nb.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary);font-weight:500}
+
+.sec{display:none}.sec.active{display:block}
+
+.report-shell{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:1rem}
+
+.report-cover{background:#042C53;padding:2rem;text-align:center;position:relative}
+.cover-logo{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(181,212,244,0.7);margin-bottom:1.5rem}
+.cover-title{font-size:18px;font-weight:500;color:#fff;line-height:1.3;margin-bottom:.5rem}
+.cover-sub{font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:1.5rem;line-height:1.6}
+.cover-meta{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.cover-meta-item{text-align:center}
+.cover-meta-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(181,212,244,0.55);margin-bottom:3px}
+.cover-meta-val{font-size:11px;color:rgba(255,255,255,0.85);font-weight:500}
+
+.report-body{padding:1.5rem}
+
+.rh2{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:0.5px solid var(--color-border-tertiary);letter-spacing:.02em}
+
+.section-num{font-size:10px;font-weight:500;color:var(--color-text-tertiary);margin-right:8px;font-variant-numeric:tabular-nums}
+
+.divider{height:0.5px;background:var(--color-border-tertiary);margin:1.25rem 0}
+
+.rtable{width:100%;border-collapse:collapse;font-size:11.5px;margin-bottom:1rem}
+.rtable th{text-align:left;padding:5px 8px 6px;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-tertiary);border-bottom:0.5px solid var(--color-border-tertiary)}
+.rtable td{padding:7px 8px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);vertical-align:top;line-height:1.45}
+.rtable tr:last-child td{border-bottom:none}
+.rtable td:first-child{font-weight:500;color:var(--color-text-primary)}
+.rtable tr:nth-child(even) td{background:var(--color-background-secondary)}
+
+.pill{display:inline-block;font-size:10px;font-weight:500;padding:2px 8px;border-radius:100px}
+.pill-b{background:#E6F1FB;color:#0C447C}
+.pill-t{background:#E1F5EE;color:#085041}
+.pill-a{background:#FAEEDA;color:#633806}
+.pill-r{background:#FCEBEB;color:#A32D2D}
+.pill-g{background:#EAF3DE;color:#27500A}
+
+.note-box{padding:.65rem .85rem;border-radius:var(--border-radius-md);font-size:11px;line-height:1.6;margin-bottom:1rem}
+.note-info{background:var(--color-background-info);color:var(--color-text-info);border-left:2px solid var(--color-border-info)}
+.note-warn{background:#FAEEDA;color:#633806;border-left:2px solid #BA7517}
+.note-ok{background:#EAF3DE;color:#27500A;border-left:2px solid #639922}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+.stat-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.85rem;text-align:center}
+.stat-val{font-size:1.4rem;font-weight:500;line-height:1;margin-bottom:4px}
+.stat-lbl{font-size:10px;color:var(--color-text-tertiary);line-height:1.4}
+
+.mini-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.75rem .85rem;margin-bottom:8px}
+.mini-title{font-size:11px;font-weight:500;margin-bottom:4px}
+.mini-body{font-size:11px;color:var(--color-text-secondary);line-height:1.55}
+
+.wp-row{display:grid;grid-template-columns:80px 60px 60px 60px 60px 70px 70px;gap:0;border-bottom:0.5px solid var(--color-border-tertiary);align-items:center}
+.wp-row:last-child{border-bottom:none}
+.wp-cell{padding:6px 8px;font-size:11px;color:var(--color-text-secondary)}
+.wp-cell.name{font-weight:500;color:var(--color-text-primary)}
+.wp-head .wp-cell{font-size:9.5px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--color-text-tertiary);padding-bottom:5px}
+.risk-hi{background:#FCEBEB;color:#A32D2D;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:500}
+.risk-md{background:#FAEEDA;color:#633806;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:500}
+.risk-lo{background:#EAF3DE;color:#27500A;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:500}
+
+.cal-grid{display:grid;grid-template-columns:80px repeat(12,1fr);gap:2px;margin-bottom:1rem}
+.cal-head{font-size:9px;font-weight:500;color:var(--color-text-tertiary);text-align:center;padding:3px 0}
+.cal-label{font-size:10px;color:var(--color-text-secondary);display:flex;align-items:center;padding-right:4px}
+.cal-cell{border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:500;height:22px}
+.op-hi{background:#EAF3DE;color:#27500A}
+.op-md{background:#FAEEDA;color:#633806}
+.op-lo{background:#FCEBEB;color:#A32D2D}
+
+.toc-item{display:flex;align-items:baseline;gap:6px;padding:4px 0;font-size:11.5px;color:var(--color-text-secondary);border-bottom:0.5px dotted var(--color-border-tertiary)}
+.toc-item:last-child{border-bottom:none}
+.toc-num{color:var(--color-text-tertiary);font-size:10.5px;min-width:20px;flex-shrink:0}
+.toc-dots{flex:1;border-bottom:0.5px dotted var(--color-border-tertiary);margin:0 4px;position:relative;top:-3px}
+.toc-page{color:var(--color-text-tertiary);font-size:10.5px;flex-shrink:0}
+
+.fig-placeholder{background:var(--color-background-secondary);border:0.5px dashed var(--color-border-secondary);border-radius:var(--border-radius-md);padding:1.5rem;text-align:center;color:var(--color-text-tertiary);font-size:11px;margin-bottom:1rem}
+.fig-label{font-size:10px;color:var(--color-text-tertiary);text-align:center;margin-top:4px;margin-bottom:1rem;font-style:italic}
+
+.dswl-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:11.5px}
+.dswl-comp{background:var(--color-background-secondary);border-radius:4px;padding:3px 10px;font-weight:500;color:var(--color-text-primary)}
+.dswl-op{color:var(--color-text-tertiary);font-weight:500}
+.dswl-val{color:var(--color-text-secondary)}
+.dswl-total{font-size:13px;font-weight:500;color:var(--color-text-primary);border-top:0.5px solid var(--color-border-tertiary);padding-top:8px;margin-top:8px}
+
+@media(max-width:600px){.grid2,.grid3{grid-template-columns:1fr}.cal-grid{grid-template-columns:60px repeat(6,1fr)}.wp-row{grid-template-columns:70px 55px 55px 55px 70px}}
+</style>
+
+<h2 class="sr-only">MetOcean AI platform — sample output reports for site study, route analysis, design criteria, and data appendix</h2>
+
+<div class="nav">
+  <button class="nb active" onclick="show('r1')">Report 1 — Site study</button>
+  <button class="nb" onclick="show('r2')">Report 2 — Transport route</button>
+  <button class="nb" onclick="show('r3')">Report 3 — Design criteria</button>
+  <button class="nb" onclick="show('r4')">Report 4 — Data appendix</button>
+</div>
+
+<!-- ══ REPORT 1 — SITE STUDY ══════════════════════════════════════════════ -->
+<div class="sec active" id="sec-r1">
+
+  <div class="report-shell">
+    <div class="report-cover">
+      <div class="cover-logo">MetOcean AI Platform</div>
+      <div class="cover-title">Metocean Site Study Report<br>Load-Out Jetty — Gulf of Oman Fabrication Yard</div>
+      <div class="cover-sub">Environmental conditions assessment for marine operations planning<br>and engineering design — prepared per DNVGL-RP-C205 / ISO 19901-1</div>
+      <div class="cover-meta">
+        <div class="cover-meta-item"><div class="cover-meta-label">Site</div><div class="cover-meta-val">22.3°N 59.5°E</div></div>
+        <div class="cover-meta-item"><div class="cover-meta-label">Data period</div><div class="cover-meta-val">2000–2023 (23 yr)</div></div>
+        <div class="cover-meta-item"><div class="cover-meta-label">Issue</div><div class="cover-meta-val">Rev 1.0 — Draft</div></div>
+        <div class="cover-meta-item"><div class="cover-meta-label">Date</div><div class="cover-meta-val">April 2026</div></div>
+      </div>
+    </div>
+
+    <div class="report-body">
+      <div class="rh2"><span class="section-num">—</span>Table of contents</div>
+      <div class="toc-item"><span class="toc-num">1</span><span>Data sources and validation</span><span class="toc-dots"></span><span class="toc-page">3</span></div>
+      <div class="toc-item"><span class="toc-num">2</span><span>Wind analysis</span><span class="toc-dots"></span><span class="toc-page">6</span></div>
+      <div class="toc-item"><span class="toc-num">3</span><span>Wave analysis</span><span class="toc-dots"></span><span class="toc-page">11</span></div>
+      <div class="toc-item"><span class="toc-num">4</span><span>Current analysis</span><span class="toc-dots"></span><span class="toc-page">17</span></div>
+      <div class="toc-item"><span class="toc-num">5</span><span>Tidal analysis (FES2022)</span><span class="toc-dots"></span><span class="toc-page">21</span></div>
+      <div class="toc-item"><span class="toc-num">6</span><span>Storm surge analysis</span><span class="toc-dots"></span><span class="toc-page">24</span></div>
+      <div class="toc-item"><span class="toc-num">7</span><span>Design water level</span><span class="toc-dots"></span><span class="toc-page">27</span></div>
+      <div class="toc-item"><span class="toc-num">8</span><span>Seasonal statistics and operational windows</span><span class="toc-dots"></span><span class="toc-page">29</span></div>
+      <div class="toc-item"><span class="toc-num">9</span><span>Probability of exceedance</span><span class="toc-dots"></span><span class="toc-page">34</span></div>
+      <div class="toc-item"><span class="toc-num">A</span><span>Appendix A — Methodology and references</span><span class="toc-dots"></span><span class="toc-page">38</span></div>
+
+      <div class="divider"></div>
+
+      <div class="rh2"><span class="section-num">2</span>Extreme value analysis — all parameters</div>
+      <div class="note-info" style="margin-bottom:.85rem">ERA5 wind validated against Sentinel-6/Jason-3 altimetry: bias −0.34 m/s, RMSE 1.12 m/s, R=0.94, n=847 collocations. No quantile correction applied (bias &lt;10%). Surge: daily CMEMS data, PAF=1.41 applied.</div>
+
+      <table class="rtable">
+        <thead><tr><th>Parameter</th><th>Units</th><th>Method</th><th>1-yr</th><th>10-yr</th><th>50-yr</th><th>100-yr</th><th>90% CI (100-yr)</th></tr></thead>
+        <tbody>
+          <tr><td>Wind speed (U10)</td><td>m/s</td><td><span class="pill pill-b">GPD</span></td><td>14.8</td><td>20.3</td><td>24.1</td><td>25.7</td><td>23.9 – 27.8</td></tr>
+          <tr><td>Sig. wave height Hs</td><td>m</td><td><span class="pill pill-b">GPD</span></td><td>2.1</td><td>3.8</td><td>5.2</td><td>5.8</td><td>5.2 – 6.6</td></tr>
+          <tr><td>Peak period Tp</td><td>s</td><td><span class="pill pill-t">GEV</span></td><td>8.4</td><td>11.2</td><td>13.1</td><td>13.8</td><td>12.9 – 14.9</td></tr>
+          <tr><td>Current speed</td><td>m/s</td><td><span class="pill pill-b">GPD</span></td><td>0.62</td><td>0.94</td><td>1.18</td><td>1.28</td><td>1.15 – 1.44</td></tr>
+          <tr><td>Swell Hs</td><td>m</td><td><span class="pill pill-b">GPD</span></td><td>1.4</td><td>2.6</td><td>3.5</td><td>3.9</td><td>3.4 – 4.5</td></tr>
+          <tr><td>Tidal range (MHWS–MLWS)</td><td>m</td><td><span class="pill pill-g">FES2022</span></td><td colspan="4">HAT=1.82m · MHWS=1.54m · MSL=0.0m · MLWS=−1.41m · LAT=−1.78m</td><td>—</td></tr>
+          <tr><td>Surge residual (daily mean)</td><td>m</td><td><span class="pill pill-a">GEV</span></td><td>0.18</td><td>0.29</td><td>0.37</td><td>0.41</td><td>0.36 – 0.47</td></tr>
+          <tr><td>Surge residual (PAF=1.41)</td><td>m</td><td><span class="pill pill-a">GEV+PAF</span></td><td>0.25</td><td>0.41</td><td>0.52</td><td>0.58</td><td>0.51 – 0.66</td></tr>
+        </tbody>
+      </table>
+
+      <div class="divider"></div>
+
+      <div class="rh2"><span class="section-num">7</span>Design still water level (DSWL)</div>
+      <div style="margin-bottom:1rem">
+        <div class="dswl-row"><span class="dswl-comp">HAT (FES2022)</span><span class="dswl-op">=</span><span class="dswl-val">+1.82 m (CD)</span></div>
+        <div class="dswl-row"><span class="dswl-comp">100-yr surge (PAF-corrected)</span><span class="dswl-op">+</span><span class="dswl-val">+0.58 m</span></div>
+        <div class="dswl-row"><span class="dswl-comp">MSL trend (2050 RCP4.5)</span><span class="dswl-op">+</span><span class="dswl-val">+0.12 m</span></div>
+        <div class="dswl-total">Design still water level = +2.52 m (CD) &nbsp;|&nbsp; Apply 0.5m freeboard per DNVGL-RP-C205 → Crest level ≥ +3.02 m (CD)</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="rh2"><span class="section-num">8</span>Operational windows — load-out criteria Hs &lt; 0.5m, U10 &lt; 10 m/s</div>
+      <div class="cal-grid">
+        <div class="cal-head"></div>
+        <div class="cal-head">Jan</div><div class="cal-head">Feb</div><div class="cal-head">Mar</div><div class="cal-head">Apr</div><div class="cal-head">May</div><div class="cal-head">Jun</div><div class="cal-head">Jul</div><div class="cal-head">Aug</div><div class="cal-head">Sep</div><div class="cal-head">Oct</div><div class="cal-head">Nov</div><div class="cal-head">Dec</div>
+        <div class="cal-label">Operability</div>
+        <div class="cal-cell op-lo">38%</div><div class="cal-cell op-lo">42%</div><div class="cal-cell op-md">55%</div><div class="cal-cell op-hi">74%</div><div class="cal-cell op-hi">81%</div><div class="cal-cell op-md">63%</div><div class="cal-cell op-md">58%</div><div class="cal-cell op-md">61%</div><div class="cal-cell op-hi">76%</div><div class="cal-cell op-hi">82%</div><div class="cal-cell op-hi">79%</div><div class="cal-cell op-md">52%</div>
+      </div>
+      <div style="display:flex;gap:10px;font-size:10px;color:var(--color-text-tertiary);margin-bottom:1rem">
+        <span><span style="display:inline-block;width:10px;height:10px;background:#EAF3DE;border-radius:2px;vertical-align:middle;margin-right:3px"></span>≥70% (favourable)</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#FAEEDA;border-radius:2px;vertical-align:middle;margin-right:3px"></span>40–70% (marginal)</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#FCEBEB;border-radius:2px;vertical-align:middle;margin-right:3px"></span>&lt;40% (constrained)</span>
+      </div>
+
+      <div class="note-ok">Best operational months: April, May, September, October, November — mean operability 78%. Avoid January–February (Shamal season, operability 38–42%).</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REPORT 2 — TRANSPORT ROUTE ════════════════════════════════════════ -->
+<div class="sec" id="sec-r2">
+  <div class="report-shell">
+    <div class="report-cover">
+      <div class="cover-logo">MetOcean AI Platform</div>
+      <div class="cover-title">Metocean Transport Route Report<br>Gulf of Oman Yard → D Island, UAE</div>
+      <div class="cover-sub">Tow/transport corridor environmental assessment<br>Marine warranty survey — prepared per DNVGL-RP-C205 / IMO MSC</div>
+      <div class="cover-meta">
+        <div class="cover-meta-item"><div class="cover-meta-label">Route length</div><div class="cover-meta-val">~680 nm</div></div>
+        <div class="cover-meta-item"><div class="cover-meta-label">Waypoints</div><div class="cover-meta-val">8 assessed</div></div>
+        <div class="cover-meta-item"><div class="cover-meta-label">Data period</div><div class="cover-meta-val">2000–2023</div></div>
+        <div class="cover-meta-item"><div class="cover-meta-label">Issue</div><div class="cover-meta-val">Rev 1.0 — Draft</div></div>
+      </div>
+    </div>
+
+    <div class="report-body">
+      <div class="rh2"><span class="section-num">3</span>Waypoint environmental exposure summary</div>
+      <div class="note-warn" style="margin-bottom:.85rem">WP-03 and WP-04 in Strait of Hormuz show elevated current exposure (p90 &gt; 1.2 m/s). WP-06 in open Gulf of Oman shows highest wave exposure (p90 Hs = 2.8m). Schedule transit of WP-03/04 to avoid peak Shamal periods (Dec–Feb).</div>
+
+      <div class="wp-row wp-head">
+        <div class="wp-cell name">Waypoint</div>
+        <div class="wp-cell">Dist (nm)</div>
+        <div class="wp-cell">p90 wind (m/s)</div>
+        <div class="wp-cell">p90 Hs (m)</div>
+        <div class="wp-cell">p90 curr (m/s)</div>
+        <div class="wp-cell">Exp. score</div>
+        <div class="wp-cell">Risk</div>
+      </div>
+      <div class="wp-row"><div class="wp-cell name">WP-01 Origin</div><div class="wp-cell">0</div><div class="wp-cell">11.4</div><div class="wp-cell">1.8</div><div class="wp-cell">0.55</div><div class="wp-cell">4.2 / 10</div><div class="wp-cell"><span class="risk-md">Moderate</span></div></div>
+      <div class="wp-row"><div class="wp-cell name">WP-02</div><div class="wp-cell">85</div><div class="wp-cell">12.1</div><div class="wp-cell">2.1</div><div class="wp-cell">0.68</div><div class="wp-cell">4.9 / 10</div><div class="wp-cell"><span class="risk-md">Moderate</span></div></div>
+      <div class="wp-row"><div class="wp-cell name">WP-03 Hormuz</div><div class="wp-cell">165</div><div class="wp-cell">13.8</div><div class="wp-cell">1.9</div><div class="wp-cell">1.24</div><div class="wp-cell">7.1 / 10</div><div class="wp-cell"><span class="risk-hi">High</span></div></div>
+      <div class="wp-row"><div class="wp-cell name">WP-04 Hormuz</div><div class="wp-cell">210</div><div class="wp-cell">14.2</div><div class="wp-cell">2.0</div><div class="wp-cell">1.31</div><div class="wp-cell">7.4 / 10</div><div class="wp-cell"><span class="risk-hi">High</span></div></div>
+      <div class="wp-row"><div class="wp-cell name">WP-05</div><div class="wp-cell">310</div><div class="wp-cell">11.8</div><div class="wp-cell">2.4</div><div class="wp-cell">0.72</div><div class="wp-cell">5.3 / 10</div><div class="wp-cell"><span class="risk-md">Moderate</span></div></div>
+      <div class="wp-row"><div class="wp-cell name">WP-06 Open GoO</div><div class="wp-cell">420</div><div class="wp-cell">12.9</div><div class="wp-cell">2.8</div><div class="wp-cell">0.81</div><div class="wp-cell">6.2 / 10</div><div class="wp-cell"><span class="risk-md">Moderate</span></div></div>
+      <div class="wp-row"><div class="wp-cell name">WP-07</div><div class="wp-cell">540</div><div class="wp-cell">10.4</div><div class="wp-cell">1.6</div><div class="wp-cell">0.48</div><div class="wp-cell">3.8 / 10</div><div class="wp-cell"><span class="risk-lo">Low</span></div></div>
+      <div class="wp-row"><div class="wp-cell name">WP-08 Dest.</div><div class="wp-cell">680</div><div class="wp-cell">9.8</div><div class="wp-cell">1.2</div><div class="wp-cell">0.42</div><div class="wp-cell">3.1 / 10</div><div class="wp-cell"><span class="risk-lo">Low</span></div></div>
+
+      <div class="divider"></div>
+
+      <div class="rh2"><span class="section-num">4</span>Weather window operability — worst waypoint per month (criteria: Hs &lt; 2.0m, U10 &lt; 15 m/s)</div>
+      <div class="cal-grid">
+        <div class="cal-head"></div>
+        <div class="cal-head">Jan</div><div class="cal-head">Feb</div><div class="cal-head">Mar</div><div class="cal-head">Apr</div><div class="cal-head">May</div><div class="cal-head">Jun</div><div class="cal-head">Jul</div><div class="cal-head">Aug</div><div class="cal-head">Sep</div><div class="cal-head">Oct</div><div class="cal-head">Nov</div><div class="cal-head">Dec</div>
+        <div class="cal-label">WP-03/04</div>
+        <div class="cal-cell op-lo">31%</div><div class="cal-cell op-lo">35%</div><div class="cal-cell op-md">54%</div><div class="cal-cell op-hi">72%</div><div class="cal-cell op-hi">78%</div><div class="cal-cell op-md">65%</div><div class="cal-cell op-md">60%</div><div class="cal-cell op-md">63%</div><div class="cal-cell op-hi">74%</div><div class="cal-cell op-hi">80%</div><div class="cal-cell op-hi">75%</div><div class="cal-cell op-lo">38%</div>
+        <div class="cal-label">WP-06</div>
+        <div class="cal-cell op-md">48%</div><div class="cal-cell op-md">52%</div><div class="cal-cell op-hi">70%</div><div class="cal-cell op-hi">84%</div><div class="cal-cell op-hi">88%</div><div class="cal-cell op-hi">76%</div><div class="cal-cell op-hi">71%</div><div class="cal-cell op-hi">73%</div><div class="cal-cell op-hi">85%</div><div class="cal-cell op-hi">89%</div><div class="cal-cell op-hi">83%</div><div class="cal-cell op-md">55%</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="rh2"><span class="section-num">5</span>Return period conditions — Strait of Hormuz (WP-03/04, controlling waypoint)</div>
+      <table class="rtable">
+        <thead><tr><th>Parameter</th><th>Units</th><th>1-yr</th><th>10-yr</th><th>50-yr</th><th>100-yr</th><th>PAF</th></tr></thead>
+        <tbody>
+          <tr><td>Wind speed</td><td>m/s</td><td>18.2</td><td>23.8</td><td>27.4</td><td>29.1</td><td>—</td></tr>
+          <tr><td>Sig. wave height Hs</td><td>m</td><td>2.4</td><td>3.9</td><td>5.1</td><td>5.6</td><td>—</td></tr>
+          <tr><td>Current speed</td><td>m/s</td><td>1.05</td><td>1.48</td><td>1.82</td><td>1.96</td><td>—</td></tr>
+          <tr><td>Surge (hourly peak)</td><td>m</td><td>0.22</td><td>0.38</td><td>0.49</td><td>0.55</td><td>1.38</td></tr>
+        </tbody>
+      </table>
+
+      <div class="note-ok">Recommended tow window: April–May or September–November. Avoid December–February (Shamal). The Strait of Hormuz current (WP-03/04) is the controlling constraint — peak tidal currents 1.2–1.5 m/s in narrows. Schedule transit at neap tide.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REPORT 3 — DESIGN CRITERIA ════════════════════════════════════════ -->
+<div class="sec" id="sec-r3">
+  <div class="report-shell">
+    <div class="report-cover">
+      <div class="cover-logo">MetOcean AI Platform</div>
+      <div class="cover-title">Metocean Design Criteria Summary<br>Load-Out Jetty — Gulf of Oman Fabrication Yard</div>
+      <div class="cover-sub">Condensed engineering input document — for use in structural design, mooring analysis, and marine warranty submission</div>
+      <div class="cover-meta">
+        <div class="cover-meta-item"><div class="cover-meta-label">Document type</div><div class="cover-meta-val">Design input</div></div>
+        <div class="cover-meta-item"><div class="cover-meta-label">Derived from</div><div class="cover-meta-val">Site Study Rev 1.0</div></div>
+        <div class="cover-meta-item"><div class="cover-meta-label">Standard</div><div class="cover-meta-val">DNVGL-RP-C205</div></div>
+      </div>
+    </div>
+
+    <div class="report-body">
+      <div class="rh2"><span class="section-num">1</span>Extreme conditions — for structural and equipment design</div>
+      <table class="rtable">
+        <thead><tr><th>Parameter</th><th>Symbol</th><th>Units</th><th>1-yr</th><th>10-yr</th><th>100-yr</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Wind speed (1-hr mean, 10m)</td><td>U₁₀</td><td>m/s</td><td>14.8</td><td>20.3</td><td>25.7</td><td>ERA5, GPD, 48hr sep.</td></tr>
+          <tr><td>Wind speed (3-sec gust)</td><td>Ugust</td><td>m/s</td><td>19.7</td><td>27.0</td><td>34.2</td><td>U₁₀ × 1.33 gust factor</td></tr>
+          <tr><td>Significant wave height</td><td>Hs</td><td>m</td><td>2.1</td><td>3.8</td><td>5.8</td><td>ERA5/CMEMS, GPD, 72hr sep.</td></tr>
+          <tr><td>Associated peak period</td><td>Tp</td><td>s</td><td>8.4</td><td>11.2</td><td>13.8</td><td>I-FORM joint probability</td></tr>
+          <tr><td>Maximum wave height</td><td>Hmax</td><td>m</td><td>3.9</td><td>7.1</td><td>10.8</td><td>Hmax = 1.86 × Hs</td></tr>
+          <tr><td>Surface current speed</td><td>Uc</td><td>m/s</td><td>0.62</td><td>0.94</td><td>1.28</td><td>CMEMS GLORYS12, GEV</td></tr>
+          <tr><td>Swell height (Hs,swell)</td><td>—</td><td>m</td><td>1.4</td><td>2.6</td><td>3.9</td><td>ERA5 swell partition</td></tr>
+        </tbody>
+      </table>
+
+      <div class="divider"></div>
+
+      <div class="rh2"><span class="section-num">2</span>Water levels — for jetty and deck elevation design</div>
+      <table class="rtable">
+        <thead><tr><th>Level</th><th>Value (m CD)</th><th>Basis</th></tr></thead>
+        <tbody>
+          <tr><td>Highest astronomical tide (HAT)</td><td>+1.82</td><td>FES2022 — 19-yr nodal cycle</td></tr>
+          <tr><td>Mean high water springs (MHWS)</td><td>+1.54</td><td>FES2022</td></tr>
+          <tr><td>Mean sea level (MSL)</td><td>0.00</td><td>Chart datum reference</td></tr>
+          <tr><td>Mean low water springs (MLWS)</td><td>−1.41</td><td>FES2022</td></tr>
+          <tr><td>Lowest astronomical tide (LAT)</td><td>−1.78</td><td>FES2022</td></tr>
+          <tr><td>100-yr storm surge (hourly peak)</td><td>+0.58</td><td>CMEMS GTSM, PAF=1.41</td></tr>
+          <tr><td>MSL trend — 2050 RCP4.5</td><td>+0.12</td><td>CMEMS altimetry + IPCC AR6</td></tr>
+          <tr><td style="font-weight:500">Design still water level (DSWL)</td><td style="font-weight:500">+2.52</td><td>HAT + 100-yr surge + MSL trend</td></tr>
+        </tbody>
+      </table>
+
+      <div class="divider"></div>
+
+      <div class="rh2"><span class="section-num">3</span>Operational criteria — for marine operations planning</div>
+      <div class="grid2">
+        <div>
+          <div class="mini-card">
+            <div class="mini-title">Load-out operations (vessel alongside)</div>
+            <div class="mini-body">Hs ≤ 0.5m · U₁₀ ≤ 10 m/s · Current ≤ 0.5 m/s · Tidal window: within 2hr of HW slack</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-title">Tow departure clearance</div>
+            <div class="mini-body">Hs ≤ 1.5m · U₁₀ ≤ 12 m/s · 48hr forecast confirmation required · MWS representative present</div>
+          </div>
+        </div>
+        <div>
+          <div class="mini-card">
+            <div class="mini-title">Mooring design environmental state</div>
+            <div class="mini-body">Hs = 5.8m (100-yr) · Tp = 13.8s · U₁₀ = 25.7 m/s · Current = 1.28 m/s · Apply collinear loading per DNVGL-RP-C205</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-title">Recommended operational window</div>
+            <div class="mini-body">Apr–May or Sep–Nov. Avoid Jan–Feb (Shamal, operability 38–42%). Mean operability 78% in recommended months.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-info">This design criteria summary is derived from the full Site Study Report (Rev 1.0). All values subject to marine warranty surveyor review and approval before use in structural design calculations.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REPORT 4 — DATA APPENDIX ══════════════════════════════════════════ -->
+<div class="sec" id="sec-r4">
+  <div class="report-shell">
+    <div class="report-cover">
+      <div class="cover-logo">MetOcean AI Platform</div>
+      <div class="cover-title">Metocean Data Appendix<br>Gulf of Oman Fabrication Yard — Full Tabulated Results</div>
+      <div class="cover-sub">Machine-readable data tables — Excel export for direct engineering software input</div>
+      <div class="cover-meta">
+        <div class="cover-meta-item"><div class="cover-meta-label">Format</div><div class="cover-meta-val">Excel (.xlsx)</div></div>
+        <div class="cover-meta-item"><div class="cover-meta-label">Sheets</div><div class="cover-meta-val">5 tabs</div></div>
+        <div class="cover-meta-item"><div class="cover-meta-label">Parameters</div><div class="cover-meta-val">7 variables</div></div>
+      </div>
+    </div>
+
+    <div class="report-body">
+      <div class="rh2"><span class="section-num">Sheet 1</span>EVA results — all parameters</div>
+      <table class="rtable">
+        <thead><tr><th>Parameter</th><th>Units</th><th>Method</th><th>Threshold</th><th>N events</th><th>Rec. yrs</th><th>RP-1</th><th>RP-10</th><th>RP-50</th><th>RP-100</th><th>CI lower</th><th>CI upper</th><th>KS p-val</th><th>PAF</th></tr></thead>
+        <tbody>
+          <tr><td>wind_speed</td><td>m/s</td><td>GPD</td><td>8.4</td><td>312</td><td>23</td><td>14.8</td><td>20.3</td><td>24.1</td><td>25.7</td><td>23.9</td><td>27.8</td><td>0.41</td><td>1.00</td></tr>
+          <tr><td>hs</td><td>m</td><td>GPD</td><td>1.2</td><td>287</td><td>23</td><td>2.1</td><td>3.8</td><td>5.2</td><td>5.8</td><td>5.2</td><td>6.6</td><td>0.38</td><td>1.00</td></tr>
+          <tr><td>tp</td><td>s</td><td>GEV</td><td>—</td><td>23</td><td>23</td><td>8.4</td><td>11.2</td><td>13.1</td><td>13.8</td><td>12.9</td><td>14.9</td><td>0.52</td><td>1.00</td></tr>
+          <tr><td>current_speed</td><td>m/s</td><td>GPD</td><td>0.38</td><td>196</td><td>23</td><td>0.62</td><td>0.94</td><td>1.18</td><td>1.28</td><td>1.15</td><td>1.44</td><td>0.29</td><td>1.00</td></tr>
+          <tr><td>swell_hs</td><td>m</td><td>GPD</td><td>0.8</td><td>241</td><td>23</td><td>1.4</td><td>2.6</td><td>3.5</td><td>3.9</td><td>3.4</td><td>4.5</td><td>0.44</td><td>1.00</td></tr>
+          <tr><td>surge_daily</td><td>m</td><td>GEV</td><td>—</td><td>23</td><td>23</td><td>0.18</td><td>0.29</td><td>0.37</td><td>0.41</td><td>0.36</td><td>0.47</td><td>0.61</td><td>—</td></tr>
+          <tr><td>surge_peak_est</td><td>m</td><td>GEV+PAF</td><td>—</td><td>23</td><td>23</td><td>0.25</td><td>0.41</td><td>0.52</td><td>0.58</td><td>0.51</td><td>0.66</td><td>0.61</td><td>1.41</td></tr>
+        </tbody>
+      </table>
+
+      <div class="divider"></div>
+
+      <div class="rh2"><span class="section-num">Sheet 2</span>Monthly statistics — wind speed (m/s) — sample</div>
+      <table class="rtable">
+        <thead><tr><th>Month</th><th>Mean</th><th>Median</th><th>Std</th><th>p10</th><th>p50</th><th>p90</th><th>p95</th><th>Max</th><th>Calm %</th></tr></thead>
+        <tbody>
+          <tr><td>January</td><td>9.4</td><td>9.1</td><td>3.8</td><td>4.8</td><td>9.1</td><td>14.2</td><td>16.1</td><td>21.4</td><td>2%</td></tr>
+          <tr><td>February</td><td>8.8</td><td>8.5</td><td>3.5</td><td>4.5</td><td>8.5</td><td>13.6</td><td>15.2</td><td>19.8</td><td>3%</td></tr>
+          <tr><td>April</td><td>6.2</td><td>5.9</td><td>2.8</td><td>2.9</td><td>5.9</td><td>9.8</td><td>11.2</td><td>15.3</td><td>8%</td></tr>
+          <tr><td>October</td><td>5.8</td><td>5.5</td><td>2.4</td><td>2.6</td><td>5.5</td><td>9.1</td><td>10.4</td><td>14.2</td><td>10%</td></tr>
+        </tbody>
+      </table>
+
+      <div class="divider"></div>
+
+      <div class="rh2"><span class="section-num">Sheet 5</span>Validation statistics — per source</div>
+      <table class="rtable">
+        <thead><tr><th>Source</th><th>Parameter</th><th>Validation method</th><th>Bias</th><th>RMSE</th><th>SI</th><th>R</th><th>N pairs</th><th>Correction</th></tr></thead>
+        <tbody>
+          <tr><td>ERA5</td><td>wind_speed</td><td>Sentinel-6/Jason-3 altimetry</td><td>−0.34 m/s</td><td>1.12 m/s</td><td>0.18</td><td>0.94</td><td>847</td><td>None (&lt;10%)</td></tr>
+          <tr><td>ERA5</td><td>hs</td><td>Sentinel-6 altimetry</td><td>+0.08 m</td><td>0.31 m</td><td>0.14</td><td>0.96</td><td>1,024</td><td>None (&lt;10%)</td></tr>
+          <tr><td>CMEMS GLORYS12</td><td>current_speed</td><td>Drifter colocation</td><td>+0.04 m/s</td><td>0.18 m/s</td><td>0.22</td><td>0.88</td><td>342</td><td>None</td></tr>
+          <tr><td>FES2022</td><td>tide_total</td><td>Tide gauge comparison</td><td>+0.02 m</td><td>0.08 m</td><td>0.06</td><td>0.998</td><td>8,760</td><td>N/A (in-house)</td></tr>
+          <tr><td>CMEMS GTSM</td><td>surge_daily</td><td>Published — Dullaart (2021)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>PAF=1.41</td></tr>
+        </tbody>
+      </table>
+
+      <div class="note-info" style="margin-top:.5rem">All five sheets are available as a downloadable .xlsx file. Sheet 3 contains probability-of-exceedance tables at standard engineering thresholds. Sheet 4 contains 16-sector directional statistics for wind, Hs, and current.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(id){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+</script>

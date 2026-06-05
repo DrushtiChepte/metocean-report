@@ -57,7 +57,7 @@ select {
   width: 100%;
   padding: 16px 24px;
   border-bottom: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(22, 46, 58, 0.9);
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
 }
 
@@ -80,8 +80,6 @@ select {
   display: block;
   height: 3.5rem;
   width: auto;
-  filter: invert(16%) sepia(18%) saturate(1800%) hue-rotate(200deg)
-    brightness(0.65) contrast(1.35);
   opacity: 0.96;
 }
 
@@ -388,6 +386,18 @@ select {
 }
 
 .wind-rose-card {
+  overflow: hidden;
+}
+
+.wave-rose-container {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: 20px;
+}
+
+.wave-height-card,
+.wave-period-card {
   overflow: hidden;
 }
 
@@ -929,7 +939,8 @@ select {
   .report-highlights,
   .operability-grid,
   .exceedance-grid,
-  .waypoint-strip {
+  .waypoint-strip,
+  .wave-rose-container {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -981,7 +992,8 @@ select {
   .meta-grid,
   .operability-grid,
   .exceedance-grid,
-  .waypoint-strip {
+  .waypoint-strip,
+  .wave-rose-container {
     grid-template-columns: 1fr;
   }
 

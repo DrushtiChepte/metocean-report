@@ -1,20 +1,48 @@
-import { Suspense, lazy, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  Suspense,
+  lazy,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import HarborMap from "./components/HarborMap";
 import ReportCharts from "./components/ReportCharts";
 import { fetchDashboard } from "./api";
-import type { DashboardData, MetadataReport, RouteReport, SiteReport } from "./types";
+import type {
+  DashboardData,
+  MetadataReport,
+  RouteReport,
+  SiteReport,
+} from "./types";
 
 const logoUrl = new URL("../../ideabrix-logo 1.svg", import.meta.url).href;
 const WindRoseChart = lazy(() => import("./components/WindRoseChart"));
+const WaveRoseChart = lazy(() => import("./components/WaveRoseChart"));
 
-const monthLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const monthLabels = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 const seasonLabels = ["Monsoon", "Post-monsoon", "Pre-monsoon", "Winter"];
 
 function formatNumber(value: number | string) {
   if (typeof value === "string") {
     return value;
   }
-  return Number.isInteger(value) ? String(value) : value.toFixed(4).replace(/\.?0+$/, "");
+  return Number.isInteger(value)
+    ? String(value)
+    : value.toFixed(4).replace(/\.?0+$/, "");
 }
 
 function formatDate(value?: string) {
@@ -76,7 +104,17 @@ function ReportShell({
             <p>{summary}</p>
           </div>
           <div className="report-highlights">
-            {highlights.length ? highlights.map((item) => <MetricCard key={item.label} label={item.label} value={item.value} />) : <div className="empty-state">No highlight data available.</div>}
+            {highlights.length ? (
+              highlights.map((item) => (
+                <MetricCard
+                  key={item.label}
+                  label={item.label}
+                  value={item.value}
+                />
+              ))
+            ) : (
+              <div className="empty-state">No highlight data available.</div>
+            )}
           </div>
         </div>
       ) : null}
@@ -137,10 +175,26 @@ function renderSite(report: SiteReport) {
               <h3>Site metadata</h3>
             </div>
             <div className="meta-grid">
-              <div><span>Workbook sheet</span><strong>{report.workbookSheet}</strong></div>
-              <div><span>Coordinate tag</span><strong>{report.coordinates ? `${report.coordinates.latitude.toFixed(2)}, ${report.coordinates.longitude.toFixed(2)}` : "Not available"}</strong></div>
-              <div><span>Period</span><strong>{report.period ?? "Not provided"}</strong></div>
-              <div><span>Date</span><strong>{formatDate(report.date)}</strong></div>
+              <div>
+                <span>Workbook sheet</span>
+                <strong>{report.workbookSheet}</strong>
+              </div>
+              <div>
+                <span>Coordinate tag</span>
+                <strong>
+                  {report.coordinates
+                    ? `${report.coordinates.latitude.toFixed(2)}, ${report.coordinates.longitude.toFixed(2)}`
+                    : "Not available"}
+                </strong>
+              </div>
+              <div>
+                <span>Period</span>
+                <strong>{report.period ?? "Not provided"}</strong>
+              </div>
+              <div>
+                <span>Date</span>
+                <strong>{formatDate(report.date)}</strong>
+              </div>
             </div>
           </div>
           <div className="panel-block">
@@ -157,7 +211,9 @@ function renderSite(report: SiteReport) {
                 ))}
               </div>
             ) : (
-              <div className="empty-state">No additional note sections were extracted.</div>
+              <div className="empty-state">
+                No additional note sections were extracted.
+              </div>
             )}
           </div>
         </section>
@@ -205,7 +261,9 @@ function renderSite(report: SiteReport) {
                         <tr key={row.stat}>
                           <td>{row.stat}</td>
                           {row.values.map((value, index) => (
-                            <td key={`${row.stat}-${index}`}>{formatNumber(value)}</td>
+                            <td key={`${row.stat}-${index}`}>
+                              {formatNumber(value)}
+                            </td>
                           ))}
                         </tr>
                       ))}
@@ -241,7 +299,9 @@ function renderSite(report: SiteReport) {
                       <td>{metric.metric}</td>
                       <td>{row.stat}</td>
                       {row.values.map((value, index) => (
-                        <td key={`${metric.metric}-${row.stat}-${index}`}>{formatNumber(value)}</td>
+                        <td key={`${metric.metric}-${row.stat}-${index}`}>
+                          {formatNumber(value)}
+                        </td>
                       ))}
                     </tr>
                   )),
@@ -259,7 +319,10 @@ function renderSite(report: SiteReport) {
           </div>
           <div className="operability-grid">
             {report.operationalWindows.months.map((month) => (
-              <div key={month.month} className={`operability-card ${getOperabilityTone(month.operability)}`}>
+              <div
+                key={month.month}
+                className={`operability-card ${getOperabilityTone(month.operability)}`}
+              >
                 <span>{month.month}</span>
                 <strong>{(month.operability * 100).toFixed(1)}%</strong>
               </div>
@@ -280,9 +343,14 @@ function renderSite(report: SiteReport) {
                 <strong>{group.parameter}</strong>
                 <div className="threshold-list">
                   {group.thresholds.map((threshold) => (
-                    <div key={`${group.parameter}-${threshold.threshold}`} className="threshold-row">
+                    <div
+                      key={`${group.parameter}-${threshold.threshold}`}
+                      className="threshold-row"
+                    >
                       <span>{threshold.threshold}</span>
-                      <strong>{(threshold.exceedance * 100).toFixed(2)}%</strong>
+                      <strong>
+                        {(threshold.exceedance * 100).toFixed(2)}%
+                      </strong>
                     </div>
                   ))}
                 </div>
@@ -304,10 +372,24 @@ function renderRoute(report: RouteReport) {
             <h3>Route metadata</h3>
           </div>
           <div className="meta-grid">
-            <div><span>Workbook sheet</span><strong>{report.workbookSheet}</strong></div>
-            <div><span>Route length</span><strong>{report.routeLength ?? "Not provided"}</strong></div>
-            <div><span>Waypoints</span><strong>{report.waypointCount ?? report.waypoints?.length ?? 0}</strong></div>
-            <div><span>Date</span><strong>{formatDate(report.date)}</strong></div>
+            <div>
+              <span>Workbook sheet</span>
+              <strong>{report.workbookSheet}</strong>
+            </div>
+            <div>
+              <span>Route length</span>
+              <strong>{report.routeLength ?? "Not provided"}</strong>
+            </div>
+            <div>
+              <span>Waypoints</span>
+              <strong>
+                {report.waypointCount ?? report.waypoints?.length ?? 0}
+              </strong>
+            </div>
+            <div>
+              <span>Date</span>
+              <strong>{formatDate(report.date)}</strong>
+            </div>
           </div>
         </div>
         <div className="panel-block">
@@ -442,7 +524,9 @@ function MusaffahSummaryCard() {
         <h3>Musaffah Port</h3>
       </div>
       <p className="panel-note summary-lead">
-        Site study sheet with extreme value analysis, monthly statistics, seasonal summary, operating window guidance, and exceedance probabilities.
+        Site study sheet with extreme value analysis, monthly statistics,
+        seasonal summary, operating window guidance, and exceedance
+        probabilities.
       </p>
       <div className="summary-highlights">
         <div className="highlight-card">
@@ -467,16 +551,27 @@ function MusaffahSummaryCard() {
           <h3>Site metadata</h3>
         </div>
         <div className="meta-grid">
-          <div><span>Coordinate tag</span><strong>24.38, 54.47</strong></div>
-          <div><span>Period</span><strong>1985-2000</strong></div>
-          <div><span>Date</span><strong>April 1, 2026</strong></div>
+          <div>
+            <span>Coordinate tag</span>
+            <strong>24.38, 54.47</strong>
+          </div>
+          <div>
+            <span>Period</span>
+            <strong>1985-2000</strong>
+          </div>
+          <div>
+            <span>Date</span>
+            <strong>April 1, 2026</strong>
+          </div>
         </div>
       </section>
       <section className="panel-block summary-inner">
         <div className="panel-head">
           <h3>Site details</h3>
         </div>
-        <div className="empty-state">No additional note sections were extracted.</div>
+        <div className="empty-state">
+          No additional note sections were extracted.
+        </div>
       </section>
     </section>
   );
@@ -505,7 +600,11 @@ export default function App() {
       })
       .catch((requestError: unknown) => {
         if (active) {
-          setError(requestError instanceof Error ? requestError.message : "Unable to load workbook data");
+          setError(
+            requestError instanceof Error
+              ? requestError.message
+              : "Unable to load workbook data",
+          );
         }
       })
       .finally(() => {
@@ -520,7 +619,8 @@ export default function App() {
   }, []);
 
   const selectedReport = useMemo(
-    () => dashboard?.reports.find((report) => report.slug === selectedSlug) ?? null,
+    () =>
+      dashboard?.reports.find((report) => report.slug === selectedSlug) ?? null,
     [dashboard, selectedSlug],
   );
 
@@ -538,7 +638,8 @@ export default function App() {
           <div className="sidebar-card">
             <span className="eyebrow">Locations</span>
             <p className="sidebar-copy">
-              Select a location from the project tree to open its map on the right and inspect the digitized data below.
+              Select a location from the project tree to open its map on the
+              right and inspect the digitized data below.
             </p>
           </div>
 
@@ -549,7 +650,10 @@ export default function App() {
               onClick={() => setProjectOpen((open) => !open)}
               aria-expanded={projectOpen}
             >
-              <span className={`project-caret ${projectOpen ? "open" : ""}`} aria-hidden="true" />
+              <span
+                className={`project-caret ${projectOpen ? "open" : ""}`}
+                aria-hidden="true"
+              />
               <span className="project-name">Project 1</span>
             </button>
 
@@ -566,7 +670,9 @@ export default function App() {
                     <span className="location-name">{report.title}</span>
                   </button>
                 ))}
-                {!reports.length ? <div className="status-card">Loading locations...</div> : null}
+                {!reports.length ? (
+                  <div className="status-card">Loading locations...</div>
+                ) : null}
               </div>
             </div>
           </div>
@@ -588,13 +694,34 @@ export default function App() {
               )}
             </div>
           ) : null}
-          {selectedReport?.slug === "musaffah-port" ? <MusaffahSummaryCard /> : null}
+          {selectedReport?.slug === "musaffah-port" ? (
+            <MusaffahSummaryCard />
+          ) : null}
           <div className="report-area">
-            {loading && !dashboard ? <div className="status-card">Loading workbook data...</div> : null}
+            {loading && !dashboard ? (
+              <div className="status-card">Loading workbook data...</div>
+            ) : null}
             {selectedReport ? <ReportCharts report={selectedReport} /> : null}
             {selectedReport?.slug === "musaffah-port" ? (
-              <Suspense fallback={<div className="status-card">Loading wind rose analysis...</div>}>
+              <Suspense
+                fallback={
+                  <div className="status-card">
+                    Loading wind rose analysis...
+                  </div>
+                }
+              >
                 <WindRoseChart />
+              </Suspense>
+            ) : null}
+            {selectedReport?.slug === "musaffah-port" ? (
+              <Suspense
+                fallback={
+                  <div className="status-card">
+                    Loading wave rose analysis...
+                  </div>
+                }
+              >
+                <WaveRoseChart />
               </Suspense>
             ) : null}
             {selectedReport && selectedReport.kind === "site" ? (
@@ -632,7 +759,9 @@ export default function App() {
         </section>
       </div>
 
-      {error ? <div className="status-card status-error global-error">{error}</div> : null}
+      {error ? (
+        <div className="status-card status-error global-error">{error}</div>
+      ) : null}
     </main>
   );
 }
