@@ -80,7 +80,8 @@ select {
   display: block;
   height: 3.5rem;
   width: auto;
-  filter: invert(16%) sepia(18%) saturate(1800%) hue-rotate(200deg) brightness(0.65) contrast(1.35);
+  filter: invert(16%) sepia(18%) saturate(1800%) hue-rotate(200deg)
+    brightness(0.65) contrast(1.35);
   opacity: 0.96;
 }
 
@@ -144,7 +145,9 @@ select {
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
   border-left: 6px solid var(--muted);
-  transition: transform 0.15s ease, border-left-color 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    border-left-color 0.15s ease;
 }
 
 .project-caret.open {
@@ -162,7 +165,9 @@ select {
 .project-tree {
   display: grid;
   overflow: hidden;
-  transition: grid-template-rows 0.2s ease, opacity 0.2s ease;
+  transition:
+    grid-template-rows 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .project-tree.open {
@@ -197,7 +202,10 @@ select {
   border-radius: var(--radius-lg);
   background: #ffffff;
   color: var(--text);
-  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
 }
 
 .location-button:hover {
@@ -219,7 +227,9 @@ select {
   height: 12px;
   border-radius: 999px;
   margin-top: 1px;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.02), 0 0 0 1px rgba(0, 0, 0, 0.28);
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.02),
+    0 0 0 1px rgba(0, 0, 0, 0.28);
 }
 
 .location-status.actual,
@@ -349,10 +359,8 @@ select {
 }
 
 .wind-rose-layout {
-  display: grid;
-  grid-template-columns: 170px minmax(0, 1fr);
-  gap: 16px;
-  align-items: start;
+  display: block;
+  width: 100%;
 }
 
 .wind-rose-legend {
@@ -522,7 +530,10 @@ select {
   cursor: pointer;
   border: 1px solid transparent;
   color: var(--text);
-  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
 }
 
 .site-tag:hover,

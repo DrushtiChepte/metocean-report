@@ -1,25 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import ReactECharts from "echarts-for-react";
+import RoseChart, { type RoseClass, type RoseRow } from "./RoseChart";
 
-type CsvRow = {
-  u10: number;
-  v10: number;
-  windSpeed: number;
-};
-
-type SpeedClass = {
-  label: string;
-  min: number;
-  max: number;
-  color: string;
-};
-
-const directionBins = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
-const speedClasses: SpeedClass[] = [
-  { label: "0-5 m/s", min: 0, max: 5, color: "#dbeafe" },
-  { label: "5-10 m/s", min: 5, max: 10, color: "#60a5fa" },
-  { label: "10-15 m/s", min: 10, max: 15, color: "#2563eb" },
-  { label: "15+ m/s", min: 15, max: Number.POSITIVE_INFINITY, color: "#1d4ed8" },
+const windSpeedClasses: RoseClass[] = [
+  { label: "0-2 m/s", min: 0, max: 2, color: "#FDE725" },
+  { label: "2-4 m/s", min: 2, max: 4, color: "#7AD151" },
+  { label: "4-6 m/s", min: 4, max: 6, color: "#22A884" },
+  { label: "6-8 m/s", min: 6, max: 8, color: "#2A788E" },
+  { label: "8-10 m/s", min: 8, max: 10, color: "#414487" },
+  { label: "10-12 m/s", min: 10, max: 12, color: "#2C2A72" },
+  { label: "12+ m/s", min: 12, max: Infinity, color: "#440154" },
 ];
 
 function normalizeAngle(value: number) {
@@ -52,7 +41,10 @@ function parseCsv(text: string) {
     .flatMap((cells) => {
       const u10 = Number.parseFloat(cells[uIndex]);
       const v10 = Number.parseFloat(cells[vIndex]);
-      const windSpeed = windSpeedIndex >= 0 ? Number.parseFloat(cells[windSpeedIndex]) : Number.NaN;
+      const windSpeed =
+        windSpeedIndex >= 0
+          ? Number.parseFloat(cells[windSpeedIndex])
+          : Number.NaN;
 
       if (!Number.isFinite(u10) || !Number.isFinite(v10)) {
         return [];
@@ -62,118 +54,19 @@ function parseCsv(text: string) {
         {
           u10,
           v10,
-          windSpeed: Number.isFinite(windSpeed) ? windSpeed : Math.sqrt(u10 * u10 + v10 * v10),
+          windSpeed: Number.isFinite(windSpeed)
+            ? windSpeed
+            : Math.sqrt(u10 * u10 + v10 * v10),
         },
       ];
     });
 }
 
-function buildWindRoseOptions(rows: CsvRow[]) {
-  const bins = directionBins.map((direction) => ({
-    direction,
-    total: 0,
-    classCounts: speedClasses.map(() => 0),
-    averageSpeed: 0,
-  }));
-
-  for (const row of rows) {
-    const direction = toMeteorologicalDirection(row.u10, row.v10);
-    const binIndex = Math.floor((direction + 15) / 30) % directionBins.length;
-    const speedIndex = speedClasses.findIndex((speedClass) => row.windSpeed >= speedClass.min && row.windSpeed < speedClass.max);
-    const resolvedSpeedIndex = speedIndex >= 0 ? speedIndex : speedClasses.length - 1;
-
-    bins[binIndex].total += 1;
-    bins[binIndex].averageSpeed += row.windSpeed;
-    bins[binIndex].classCounts[resolvedSpeedIndex] += 1;
-  }
-
-  const totalCount = rows.length || 1;
-
-  const series = speedClasses.map((speedClass, classIndex) => ({
-    name: speedClass.label,
-    type: "bar" as const,
-    coordinateSystem: "polar" as const,
-    stack: "wind",
-    roundCap: true,
-    data: bins.map((bin) => bin.classCounts[classIndex]),
-    itemStyle: {
-      color: speedClass.color,
-      borderColor: "#ffffff",
-      borderWidth: 1,
-    },
-    emphasis: {
-      focus: "series" as const,
-    },
-  }));
-
-  const option = {
-    title: {
-      text: "Wind Rose Analysis",
-      left: "center",
-      top: 4,
-      textStyle: {
-        color: "#0f172a",
-        fontSize: 18,
-        fontWeight: 700,
-      },
-    },
-    legend: {
-      show: false,
-    },
-    tooltip: {
-      trigger: "item",
-      backgroundColor: "rgba(255,255,255,0.98)",
-      borderColor: "rgba(15,23,42,0.12)",
-      textStyle: {
-        color: "#0f172a",
-      },
-      formatter(params: { seriesName: string; dataIndex: number; value: number }) {
-        const bin = bins[params.dataIndex];
-        return [
-          `<strong>${bin.direction}?</strong>`,
-          `${params.seriesName}: ${params.value}`,
-        ].join("<br/>");
-      },
-    },
-    polar: {
-      radius: "80%",
-    },
-    angleAxis: {
-      type: "category",
-      data: directionBins.map((direction) => `${direction}°`),
-      startAngle: 90,
-      clockwise: true,
-      axisLabel: {
-        color: "#475569",
-      },
-      axisLine: {
-        lineStyle: {
-          color: "rgba(15,23,42,0.15)",
-        },
-      },
-      axisTick: {
-        lineStyle: {
-          color: "rgba(15,23,42,0.15)",
-        },
-      },
-    },
-    radiusAxis: {
-      axisLabel: {
-        show: false,
-      },
-      splitLine: {
-        lineStyle: {
-          color: "rgba(15,23,42,0.08)",
-        },
-      },
-    },
-    series,
-  };
-
-  return { option };
-}
-
-export default function WindRoseChart({ csvUrl = "/musaffa_wind_wave.csv" }: { csvUrl?: string }) {
+export default function WindRoseChart({
+  csvUrl = "/musaffa_wind_wave.csv",
+}: {
+  csvUrl?: string;
+}) {
   const [csvText, setCsvText] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -196,7 +89,11 @@ export default function WindRoseChart({ csvUrl = "/musaffa_wind_wave.csv" }: { c
       })
       .catch((requestError: unknown) => {
         if (active) {
-          setError(requestError instanceof Error ? requestError.message : "Unable to load wind rose data");
+          setError(
+            requestError instanceof Error
+              ? requestError.message
+              : "Unable to load wind rose data",
+          );
         }
       })
       .finally(() => {
@@ -210,37 +107,37 @@ export default function WindRoseChart({ csvUrl = "/musaffa_wind_wave.csv" }: { c
     };
   }, [csvUrl]);
 
-  const chart = useMemo(() => {
+  const roseRows = useMemo(() => {
     if (!csvText) {
-      return null;
+      return [];
     }
 
-    const rows = parseCsv(csvText);
-    return rows.length ? buildWindRoseOptions(rows) : null;
+    return parseCsv(csvText).map<RoseRow>((row) => ({
+      direction: toMeteorologicalDirection(row.u10, row.v10),
+      value: row.windSpeed,
+    }));
   }, [csvText]);
 
   if (error) {
-    return <div className="status-card status-error">Wind rose data could not be loaded: {error}</div>;
+    return (
+      <div className="status-card status-error">
+        Wind rose data could not be loaded: {error}
+      </div>
+    );
   }
 
-  if (loading || !chart) {
+  if (loading || !roseRows.length) {
     return <div className="status-card">Loading wind rose analysis...</div>;
   }
 
   return (
-    <section className="chart-card wind-rose-card">
-      <div className="wind-rose-layout">
-        <div className="wind-rose-legend">
-          {speedClasses.map((speedClass) => (
-            <div key={speedClass.label} className="wind-rose-legend-item">
-              <span className="wind-rose-swatch" style={{ backgroundColor: speedClass.color }} />
-              <span>{speedClass.label}</span>
-            </div>
-          ))}
-        </div>
-        <ReactECharts option={chart.option} style={{ height: 540, width: "100%" }} notMerge lazyUpdate />
-      </div>
-      <p className="chart-note">Direction is binned into 12 sectors of 30 degrees and stacked by wind speed class.</p>
-    </section>
+    <RoseChart
+      title="Wind Rose Analysis"
+      rows={roseRows}
+      classes={windSpeedClasses}
+      stackName="wind"
+      cardClassName="wind-rose-card"
+      note="Direction is binned into 12 sectors of 30 degrees and stacked by wind speed class."
+    />
   );
 }
