@@ -7,10 +7,14 @@ import {
   type ReactNode,
 } from "react";
 import HarborMap from "./components/HarborMap";
+import MonthlyTrendChart, {
+  type MonthlyStat,
+} from "./components/MonthlyTrendChart";
 import ReportCharts from "./components/ReportCharts";
 import { fetchDashboard } from "./api";
 import type {
   DashboardData,
+  MetricBlock,
   MetadataReport,
   RouteReport,
   SiteReport,
@@ -57,6 +61,30 @@ function formatDate(value?: string) {
   });
 }
 
+function formatCoordinate(value: number, positiveSuffix: string, negativeSuffix: string) {
+  const suffix = value >= 0 ? positiveSuffix : negativeSuffix;
+  return `${Math.abs(value).toFixed(2)}°${suffix}`;
+}
+
+function formatReportLocation(report: SiteReport | RouteReport | MetadataReport) {
+  if (!report.coordinates) {
+    return report.title;
+  }
+
+  const latitude = formatCoordinate(
+    report.coordinates.latitude,
+    "N",
+    "S",
+  );
+  const longitude = formatCoordinate(
+    report.coordinates.longitude,
+    "E",
+    "W",
+  );
+
+  return `${report.title} (${latitude},${longitude})`;
+}
+
 function StatusDot({ state }: { state: "actual" | "dummy" }) {
   return <span className={`status-dot ${state}`} aria-hidden="true" />;
 }
@@ -70,11 +98,39 @@ function MetricCard({ label, value }: { label: string; value: string }) {
   );
 }
 
+function printProjectReport(
+  dashboard: DashboardData | null,
+  selectedSlug: string,
+) {
+  if (typeof window !== "undefined") {
+    sessionStorage.setItem("print-preview-dashboard", JSON.stringify(dashboard));
+    sessionStorage.setItem("print-preview-slug", selectedSlug);
+  }
+
+  const previewUrl = new URL(window.location.href);
+  previewUrl.searchParams.set("print", "1");
+  previewUrl.searchParams.delete("report");
+  window.open(previewUrl.toString(), "_blank", "noopener,noreferrer");
+}
+
 function getOperabilityTone(value: number) {
   if (value >= 0.9) return "excellent";
   if (value >= 0.8) return "good";
   if (value >= 0.7) return "moderate";
   return "low";
+}
+
+function toMonthlyTrendData(metric: MetricBlock): MonthlyStat[] {
+  const valuesByStat = new Map(
+    metric.rows.map((row) => [row.stat, row.values] as const),
+  );
+
+  return monthLabels.map((month, index) => ({
+    month,
+    P90: valuesByStat.get("P90")?.[index] ?? 0,
+    P95: valuesByStat.get("P95")?.[index] ?? 0,
+    MAX: valuesByStat.get("MAX")?.[index] ?? 0,
+  }));
 }
 
 function ReportShell({
@@ -130,7 +186,7 @@ function TablePanel({
 }: {
   title: string;
   columns: string[];
-  rows: Array<{ key: string; values: Array<string | number> }>;
+  rows: Array<{ rowKey: string; key: ReactNode; values: Array<string | number> }>;
 }) {
   return (
     <section className="panel-block">
@@ -149,10 +205,10 @@ function TablePanel({
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.key}>
+              <tr key={row.rowKey}>
                 <td>{row.key}</td>
                 {row.values.map((value, index) => (
-                  <td key={`${row.key}-${index}`}>{formatNumber(value)}</td>
+                  <td key={`${row.rowKey}-${index}`}>{formatNumber(value)}</td>
                 ))}
               </tr>
             ))}
@@ -224,7 +280,21 @@ function renderSite(report: SiteReport) {
           title="Extreme value analysis"
           columns={["Units", "RP1", "RP10", "RP50", "RP100", "Method"]}
           rows={report.extremeValueAnalysis.map((row) => ({
-            key: row.parameter,
+            rowKey: row.parameter,
+            key: (
+              <span className="extreme-parameter">
+                <span>{row.parameter}</span>
+                {row.note ? (
+                  <span
+                    className="info-tag"
+                    title={row.note.replace(/^\s*/, "")}
+                    aria-label={`${row.parameter}: ${row.note}`}
+                  >
+                    i
+                  </span>
+                ) : null}
+              </span>
+            ),
             values: [
               row.units,
               row.rp1,
@@ -269,6 +339,12 @@ function renderSite(report: SiteReport) {
                       ))}
                     </tbody>
                   </table>
+                </div>
+                <div className="monthly-card-chart">
+                  <MonthlyTrendChart
+                    title={`Monthly Trend — ${metric.metric}`}
+                    data={toMonthlyTrendData(metric)}
+                  />
                 </div>
               </div>
             ))}
@@ -429,7 +505,21 @@ function renderRoute(report: RouteReport) {
           title="Extreme value analysis"
           columns={["Units", "RP1", "RP10", "RP50", "RP100", "Method"]}
           rows={report.extremeValueAnalysis.map((row) => ({
-            key: row.parameter,
+            rowKey: row.parameter,
+            key: (
+              <span className="extreme-parameter">
+                <span>{row.parameter}</span>
+                {row.note ? (
+                  <span
+                    className="info-tag"
+                    title={row.note.replace(/^\s*/, "")}
+                    aria-label={`${row.parameter}: ${row.note}`}
+                  >
+                    i
+                  </span>
+                ) : null}
+              </span>
+            ),
             values: [
               row.units,
               row.rp1,
@@ -517,11 +607,63 @@ function renderMetadata(report: MetadataReport) {
   );
 }
 
+function renderPrintableReport(
+  report: SiteReport | RouteReport | MetadataReport,
+) {
+  if (report.kind === "site") {
+    return (
+      <>
+        {report.slug === "musaffah-port" ? <MusaffahSummaryCard /> : null}
+        <ReportCharts report={report} />
+        <ReportShell
+          title={report.title}
+          summary={report.summary}
+          highlights={report.highlights}
+          state={report.dataState}
+          hideHeader={false}
+        >
+          {renderSite(report)}
+        </ReportShell>
+      </>
+    );
+  }
+
+  if (report.kind === "route") {
+    return (
+      <>
+        <ReportCharts report={report} />
+        <ReportShell
+          title={report.title}
+          summary={report.summary}
+          highlights={report.highlights}
+          state={report.dataState}
+        >
+          {renderRoute(report)}
+        </ReportShell>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <ReportCharts report={report} />
+      <ReportShell
+        title={report.title}
+        summary={report.summary}
+        highlights={report.highlights}
+        state={report.dataState}
+      >
+        {renderMetadata(report)}
+      </ReportShell>
+    </>
+  );
+}
+
 function MusaffahSummaryCard() {
   return (
     <section className="panel-block summary-card">
       <div className="panel-head">
-        <h3>Musaffah Port</h3>
+        <h3>Musaffah Port (24.38°N,54.47°E)</h3>
       </div>
       <p className="panel-note summary-lead">
         Site study sheet with extreme value analysis, monthly statistics,
@@ -578,8 +720,33 @@ function MusaffahSummaryCard() {
 }
 
 export default function App() {
-  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
-  const [selectedSlug, setSelectedSlug] = useState("musaffah-port");
+  const [dashboard, setDashboard] = useState<DashboardData | null>(() => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+
+    if (!new URLSearchParams(window.location.search).has("print")) {
+      return null;
+    }
+
+    const cachedDashboard = sessionStorage.getItem("print-preview-dashboard");
+    if (!cachedDashboard) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(cachedDashboard) as DashboardData;
+    } catch {
+      return null;
+    }
+  });
+  const [selectedSlug, setSelectedSlug] = useState(() => {
+    if (typeof window === "undefined") {
+      return "musaffah-port";
+    }
+
+    return sessionStorage.getItem("print-preview-slug") || "musaffah-port";
+  });
   const [projectOpen, setProjectOpen] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -626,142 +793,201 @@ export default function App() {
 
   const mapSites = dashboard?.mapSites ?? [];
   const reports = dashboard?.reports ?? [];
+  const isPrintPreview =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).has("print");
+
+  if (isPrintPreview) {
+    return (
+      <main className="app-shell print-preview-shell">
+        <header className="print-preview-header">
+          <img className="topbar-logo" src={logoUrl} alt="IDEABRIX" />
+          <div className="print-preview-copy">
+            <h1>Project 1 Report</h1>
+            <p>
+              Full project export with all reports, tables, and charts laid out
+              for PDF download.
+            </p>
+          </div>
+          <div className="print-preview-actions">
+            <button
+              type="button"
+              className="map-download-button"
+              onClick={() => window.print()}
+              disabled={!dashboard}
+            >
+              Download PDF
+            </button>
+          </div>
+        </header>
+
+        <div className="print-report-stack">
+          {reports.map((report) => (
+            <section key={report.slug} className="print-report-page">
+              {renderPrintableReport(report)}
+            </section>
+          ))}
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="app-shell">
-      <header className="topbar topbar-sticky">
-        <img className="topbar-logo" src={logoUrl} alt="IDEABRIX" />
-      </header>
+      <div className="screen-only">
+        <header className="topbar topbar-sticky">
+          <img className="topbar-logo" src={logoUrl} alt="IDEABRIX" />
+        </header>
 
-      <div className="workspace">
-        <aside className="sidebar">
+        <div className="workspace">
+          <aside className="sidebar">
+            <div className="sidebar-card">
+              <span className="eyebrow">Locations</span>
+              <p className="sidebar-copy">
+                Select a location from the project tree to open its map on the
+                right and inspect the digitized data below.
+              </p>
+            </div>
+
           <div className="sidebar-card">
-            <span className="eyebrow">Locations</span>
-            <p className="sidebar-copy">
-              Select a location from the project tree to open its map on the
-              right and inspect the digitized data below.
-            </p>
-          </div>
+              <button
+                type="button"
+                className="project-row"
+                onClick={() => setProjectOpen((open) => !open)}
+                aria-expanded={projectOpen}
+              >
+                <span
+                  className={`project-caret ${projectOpen ? "open" : ""}`}
+                  aria-hidden="true"
+                />
+                <span className="project-name">Project 1</span>
+              </button>
 
-          <div className="sidebar-card">
-            <button
-              type="button"
-              className="project-row"
-              onClick={() => setProjectOpen((open) => !open)}
-              aria-expanded={projectOpen}
-            >
-              <span
-                className={`project-caret ${projectOpen ? "open" : ""}`}
-                aria-hidden="true"
-              />
-              <span className="project-name">Project 1</span>
-            </button>
-
-            <div className={`project-tree ${projectOpen ? "open" : "closed"}`}>
-              <div className="location-list">
-                {reports.map((report) => (
-                  <button
-                    key={report.slug}
-                    type="button"
-                    className={`location-button ${report.slug === selectedSlug ? "active" : ""}`}
-                    onClick={() => setSelectedSlug(report.slug)}
-                  >
-                    <span className={`location-status ${report.dataState}`} />
-                    <span className="location-name">{report.title}</span>
-                  </button>
-                ))}
-                {!reports.length ? (
-                  <div className="status-card">Loading locations...</div>
-                ) : null}
+              <div className={`project-tree ${projectOpen ? "open" : "closed"}`}>
+                <div className="location-list">
+                  {reports.map((report) => (
+                    <button
+                      key={report.slug}
+                      type="button"
+                      className={`location-button ${report.slug === selectedSlug ? "active" : ""}`}
+                      onClick={() => setSelectedSlug(report.slug)}
+                    >
+                      <span className={`location-status ${report.dataState}`} />
+                      <span className="location-name">{report.title}</span>
+                    </button>
+                  ))}
+                  {!reports.length ? (
+                    <div className="status-card">Loading locations...</div>
+                  ) : null}
+                </div>
               </div>
             </div>
-          </div>
-        </aside>
+          </aside>
 
-        <section className="main-panel">
-          {selectedReport?.kind !== "metadata" ? (
+          <section className="main-panel">
+          {selectedReport && selectedReport.kind !== "metadata" ? (
+            <div
+              key={selectedReport.slug}
+              className="report-lock-banner"
+              aria-live="polite"
+            >
+              <span className="report-lock-label">
+                {formatReportLocation(selectedReport)}
+              </span>
+            </div>
+          ) : null}
+          {selectedReport && selectedReport.kind !== "metadata" ? (
             <div className="map-card">
-              <div className="section-head">
+              <div className="section-head map-card-head">
                 <div>
                   <span className="eyebrow">Map</span>
                   <h2>{selectedReport?.title ?? "Location map"}</h2>
                 </div>
+                <button
+                  type="button"
+                  className="map-download-button"
+                  onClick={() => printProjectReport(dashboard, selectedSlug)}
+                  disabled={!dashboard}
+                >
+                  Download Report
+                </button>
               </div>
               {!loading && dashboard ? (
                 <HarborMap mapSites={mapSites} selectedSlug={selectedSlug} />
-              ) : (
-                <div className="map-shell empty-map" />
-              )}
+                ) : (
+                  <div className="map-shell empty-map" />
+                )}
+              </div>
+            ) : null}
+            {selectedReport?.slug === "musaffah-port" ? (
+              <MusaffahSummaryCard />
+            ) : null}
+            <div className="report-area">
+              {loading && !dashboard ? (
+                <div className="status-card">Loading workbook data...</div>
+              ) : null}
+              {selectedReport ? <ReportCharts report={selectedReport} /> : null}
+              {selectedReport?.slug === "musaffah-port" ? (
+                <Suspense
+                  fallback={
+                    <div className="status-card">
+                      Loading wind rose analysis...
+                    </div>
+                  }
+                >
+                  <WindRoseChart />
+                </Suspense>
+              ) : null}
+              {selectedReport?.slug === "musaffah-port" ? (
+                <Suspense
+                  fallback={
+                    <div className="status-card">
+                      Loading wave rose analysis...
+                    </div>
+                  }
+                >
+                  <WaveRoseChart />
+                </Suspense>
+              ) : null}
+              {selectedReport && selectedReport.kind === "site" ? (
+                <ReportShell
+                  title={selectedReport.title}
+                  summary={selectedReport.summary}
+                  highlights={selectedReport.highlights}
+                  state={selectedReport.dataState}
+                  hideHeader={selectedReport.slug === "musaffah-port"}
+                >
+                  {renderSite(selectedReport)}
+                </ReportShell>
+              ) : null}
+              {selectedReport && selectedReport.kind === "route" ? (
+                <ReportShell
+                  title={selectedReport.title}
+                  summary={selectedReport.summary}
+                  highlights={selectedReport.highlights}
+                  state={selectedReport.dataState}
+                >
+                  {renderRoute(selectedReport)}
+                </ReportShell>
+              ) : null}
+              {selectedReport && selectedReport.kind === "metadata" ? (
+                <ReportShell
+                  title={selectedReport.title}
+                  summary={selectedReport.summary}
+                  highlights={selectedReport.highlights}
+                  state={selectedReport.dataState}
+                >
+                  {renderMetadata(selectedReport)}
+                </ReportShell>
+              ) : null}
             </div>
-          ) : null}
-          {selectedReport?.slug === "musaffah-port" ? (
-            <MusaffahSummaryCard />
-          ) : null}
-          <div className="report-area">
-            {loading && !dashboard ? (
-              <div className="status-card">Loading workbook data...</div>
-            ) : null}
-            {selectedReport ? <ReportCharts report={selectedReport} /> : null}
-            {selectedReport?.slug === "musaffah-port" ? (
-              <Suspense
-                fallback={
-                  <div className="status-card">
-                    Loading wind rose analysis...
-                  </div>
-                }
-              >
-                <WindRoseChart />
-              </Suspense>
-            ) : null}
-            {selectedReport?.slug === "musaffah-port" ? (
-              <Suspense
-                fallback={
-                  <div className="status-card">
-                    Loading wave rose analysis...
-                  </div>
-                }
-              >
-                <WaveRoseChart />
-              </Suspense>
-            ) : null}
-            {selectedReport && selectedReport.kind === "site" ? (
-              <ReportShell
-                title={selectedReport.title}
-                summary={selectedReport.summary}
-                highlights={selectedReport.highlights}
-                state={selectedReport.dataState}
-                hideHeader={selectedReport.slug === "musaffah-port"}
-              >
-                {renderSite(selectedReport)}
-              </ReportShell>
-            ) : null}
-            {selectedReport && selectedReport.kind === "route" ? (
-              <ReportShell
-                title={selectedReport.title}
-                summary={selectedReport.summary}
-                highlights={selectedReport.highlights}
-                state={selectedReport.dataState}
-              >
-                {renderRoute(selectedReport)}
-              </ReportShell>
-            ) : null}
-            {selectedReport && selectedReport.kind === "metadata" ? (
-              <ReportShell
-                title={selectedReport.title}
-                summary={selectedReport.summary}
-                highlights={selectedReport.highlights}
-                state={selectedReport.dataState}
-              >
-                {renderMetadata(selectedReport)}
-              </ReportShell>
-            ) : null}
-          </div>
-        </section>
-      </div>
+          </section>
+        </div>
 
-      {error ? (
-        <div className="status-card status-error global-error">{error}</div>
-      ) : null}
+        {error ? (
+          <div className="status-card status-error global-error">{error}</div>
+        ) : null}
+      </div>
     </main>
   );
 }
