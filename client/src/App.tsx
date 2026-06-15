@@ -61,26 +61,24 @@ function formatDate(value?: string) {
   });
 }
 
-function formatCoordinate(value: number, positiveSuffix: string, negativeSuffix: string) {
+function formatCoordinate(
+  value: number,
+  positiveSuffix: string,
+  negativeSuffix: string,
+) {
   const suffix = value >= 0 ? positiveSuffix : negativeSuffix;
   return `${Math.abs(value).toFixed(2)}°${suffix}`;
 }
 
-function formatReportLocation(report: SiteReport | RouteReport | MetadataReport) {
+function formatReportLocation(
+  report: SiteReport | RouteReport | MetadataReport,
+) {
   if (!report.coordinates) {
     return report.title;
   }
 
-  const latitude = formatCoordinate(
-    report.coordinates.latitude,
-    "N",
-    "S",
-  );
-  const longitude = formatCoordinate(
-    report.coordinates.longitude,
-    "E",
-    "W",
-  );
+  const latitude = formatCoordinate(report.coordinates.latitude, "N", "S");
+  const longitude = formatCoordinate(report.coordinates.longitude, "E", "W");
 
   return `${report.title} (${latitude},${longitude})`;
 }
@@ -103,7 +101,10 @@ function printProjectReport(
   selectedSlug: string,
 ) {
   if (typeof window !== "undefined") {
-    sessionStorage.setItem("print-preview-dashboard", JSON.stringify(dashboard));
+    sessionStorage.setItem(
+      "print-preview-dashboard",
+      JSON.stringify(dashboard),
+    );
     sessionStorage.setItem("print-preview-slug", selectedSlug);
   }
 
@@ -186,12 +187,17 @@ function TablePanel({
 }: {
   title: string;
   columns: string[];
-  rows: Array<{ rowKey: string; key: ReactNode; values: Array<string | number> }>;
+  rows: Array<{
+    rowKey: string;
+    key: ReactNode;
+    values: Array<string | number>;
+  }>;
 }) {
   return (
     <section className="panel-block">
       <div className="panel-head">
         <h3>{title}</h3>
+        {/* <h2>{Location}</h2> */}
       </div>
       <div className="table-scroll">
         <table className="digitized-table">
@@ -663,7 +669,8 @@ function MusaffahSummaryCard() {
   return (
     <section className="panel-block summary-card">
       <div className="panel-head">
-        <h3>Musaffah Port (24.38°N,54.47°E)</h3>
+        <h3>Musaffah Port </h3>
+        <h3>Lat - 24.38°N Lon - 54.47°E</h3>
       </div>
       <p className="panel-note summary-lead">
         Site study sheet with extreme value analysis, monthly statistics,
@@ -849,7 +856,7 @@ export default function App() {
               </p>
             </div>
 
-          <div className="sidebar-card">
+            <div className="sidebar-card">
               <button
                 type="button"
                 className="project-row"
@@ -863,7 +870,9 @@ export default function App() {
                 <span className="project-name">Project 1</span>
               </button>
 
-              <div className={`project-tree ${projectOpen ? "open" : "closed"}`}>
+              <div
+                className={`project-tree ${projectOpen ? "open" : "closed"}`}
+              >
                 <div className="location-list">
                   {reports.map((report) => (
                     <button
@@ -885,35 +894,35 @@ export default function App() {
           </aside>
 
           <section className="main-panel">
-          {selectedReport && selectedReport.kind !== "metadata" ? (
-            <div
-              key={selectedReport.slug}
-              className="report-lock-banner"
-              aria-live="polite"
-            >
-              <span className="report-lock-label">
-                {formatReportLocation(selectedReport)}
-              </span>
-            </div>
-          ) : null}
-          {selectedReport && selectedReport.kind !== "metadata" ? (
-            <div className="map-card">
-              <div className="section-head map-card-head">
-                <div>
-                  <span className="eyebrow">Map</span>
-                  <h2>{selectedReport?.title ?? "Location map"}</h2>
-                </div>
-                <button
-                  type="button"
-                  className="map-download-button"
-                  onClick={() => printProjectReport(dashboard, selectedSlug)}
-                  disabled={!dashboard}
-                >
-                  Download Report
-                </button>
+            {selectedReport && selectedReport.kind !== "metadata" ? (
+              <div
+                key={selectedReport.slug}
+                className="report-lock-banner"
+                aria-live="polite"
+              >
+                <span className="report-lock-label">
+                  {formatReportLocation(selectedReport)}
+                </span>
               </div>
-              {!loading && dashboard ? (
-                <HarborMap mapSites={mapSites} selectedSlug={selectedSlug} />
+            ) : null}
+            {selectedReport && selectedReport.kind !== "metadata" ? (
+              <div className="map-card">
+                <div className="section-head map-card-head">
+                  <div>
+                    <span className="eyebrow">Map</span>
+                    <h2>{selectedReport?.title ?? "Location map"}</h2>
+                  </div>
+                  <button
+                    type="button"
+                    className="map-download-button"
+                    onClick={() => printProjectReport(dashboard, selectedSlug)}
+                    disabled={!dashboard}
+                  >
+                    Download Report
+                  </button>
+                </div>
+                {!loading && dashboard ? (
+                  <HarborMap mapSites={mapSites} selectedSlug={selectedSlug} />
                 ) : (
                   <div className="map-shell empty-map" />
                 )}

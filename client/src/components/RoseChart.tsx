@@ -119,9 +119,9 @@ function buildRoseOptions({
     },
     legend: {
       show: true,
-      left: 20,
-      top: 50,
-      orient: "vertical",
+      left: "center",
+      bottom: 10,
+      orient: "horizontal",
       textStyle: {
         color: "#374151",
       },
