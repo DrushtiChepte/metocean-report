@@ -399,6 +399,22 @@ function renderSite(report: SiteReport) {
           <div className="panel-head">
             <h3>Operational windows</h3>
           </div>
+
+          <div className="operability-legend">
+            {[
+              { tone: "low", label: "Low", range: "< 70%" },
+              { tone: "moderate", label: "Moderate", range: "70–79%" },
+              { tone: "good", label: "Good", range: "80–89%" },
+              { tone: "excellent", label: "Excellent", range: "≥ 90%" },
+            ].map(({ tone, label, range }) => (
+              <div key={tone} className={`operability-legend-item ${tone}`}>
+                <span className="operability-legend-swatch" />
+                <span className="operability-legend-label">{label}</span>
+                <span className="operability-legend-range">{range}</span>
+              </div>
+            ))}
+          </div>
+
           <div className="operability-grid">
             {report.operationalWindows.months.map((month) => (
               <div
@@ -410,6 +426,7 @@ function renderSite(report: SiteReport) {
               </div>
             ))}
           </div>
+
           <p className="panel-note">{report.operationalWindows.note}</p>
         </section>
       ) : null}
@@ -670,7 +687,7 @@ function MusaffahSummaryCard() {
     <section className="panel-block summary-card">
       <div className="panel-head">
         <h3>Musaffah Port </h3>
-        <h3>Lat - 24.38°N Lon - 54.47°E</h3>
+        <h3>Lat - 24.38°N, Lon - 54.47°E</h3>
       </div>
       <p className="panel-note summary-lead">
         Site study sheet with extreme value analysis, monthly statistics,

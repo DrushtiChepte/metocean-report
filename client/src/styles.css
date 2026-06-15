@@ -311,7 +311,7 @@ select {
   top: 92px;
   z-index: 2;
   justify-self: start;
-  width: fit-content;
+  width: 100%;
   padding: 10px 14px;
   border: 1px solid rgba(15, 118, 110, 0.16);
   border-radius: 999px;
@@ -813,7 +813,7 @@ select {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  /* margin-bottom: 14px; */
+  margin-bottom: 14px;
 }
 
 .panel-head h3,
@@ -1099,21 +1099,21 @@ select {
 }
 
 .operability-card.low {
+  background: #fee2e2;
+  border-color: #fecaca;
+}
+
+.operability-card.low strong {
+  color: #dc2626;
+}
+
+.operability-card.moderate {
   background: #fce7d6;
   border-color: #f6d0b0;
 }
 
-.operability-card.low strong {
-  color: #c2410c;
-}
-
-.operability-card.moderate {
-  background: #f9e8d5;
-  border-color: #f2d1aa;
-}
-
 .operability-card.moderate strong {
-  color: #b45309;
+  color: #c2410c;
 }
 
 .operability-card.good {
@@ -1132,6 +1132,98 @@ select {
 
 .operability-card.excellent strong {
   color: #0f766e;
+}
+
+.operability-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+  justify-content: flex-start;
+  padding: 0;
+}
+
+.operability-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+
+.operability-legend-swatch {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.operability-legend-label {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.operability-legend-range {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.operability-legend-item.low {
+  background: #fee2e2;
+  border-color: #fecaca;
+}
+
+.operability-legend-item.low .operability-legend-swatch {
+  background: #dc2626;
+}
+
+.operability-legend-item.low .operability-legend-label,
+.operability-legend-item.low .operability-legend-range {
+  color: #b91c1c;
+}
+
+.operability-legend-item.moderate {
+  background: #fce7d6;
+  border-color: #f6d0b0;
+}
+
+.operability-legend-item.moderate .operability-legend-swatch {
+  background: #c2410c;
+}
+
+.operability-legend-item.moderate .operability-legend-label,
+.operability-legend-item.moderate .operability-legend-range {
+  color: #9a3412;
+}
+
+.operability-legend-item.good {
+  background: #e8f3db;
+  border-color: #cfe7b6;
+}
+
+.operability-legend-item.good .operability-legend-swatch {
+  background: #4d7c0f;
+}
+
+.operability-legend-item.good .operability-legend-label,
+.operability-legend-item.good .operability-legend-range {
+  color: #3f6212;
+}
+
+.operability-legend-item.excellent {
+  background: #d9f2ec;
+  border-color: #b5e4d8;
+}
+
+.operability-legend-item.excellent .operability-legend-swatch {
+  background: #0f766e;
+}
+
+.operability-legend-item.excellent .operability-legend-label,
+.operability-legend-item.excellent .operability-legend-range {
+  color: #115e59;
 }
 /* .operability-card {
   padding: 12px 14px;
