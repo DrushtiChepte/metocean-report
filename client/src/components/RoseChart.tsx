@@ -113,7 +113,7 @@ function buildRoseOptions({
       top: 4,
       textStyle: {
         color: "#0f172a",
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 700,
       },
     },
@@ -169,7 +169,7 @@ function buildRoseOptions({
       },
     },
     polar: {
-      radius: "80%",
+      radius: "72%",
     },
     angleAxis: {
       type: "category",
@@ -252,7 +252,7 @@ export default function RoseChart({
       <div className="wind-rose-layout">
         <ReactECharts
           option={option}
-          style={{ height: 540, width: "100%" }}
+          style={{ height: 480, width: "100%" }}
           notMerge
           lazyUpdate
         />

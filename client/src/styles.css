@@ -3,6 +3,10 @@
   --bg-2: #f8f9fb;
   --panel: rgba(255, 255, 255, 0.96);
   --panel-strong: rgba(255, 255, 255, 0.99);
+  --surface-main: #ffffff;
+  --surface-raised: #f6f8fb;
+  --surface-nested: #ffffff;
+  --surface-muted: #f1f4f8;
   --line: rgba(15, 23, 42, 0.08);
   --line-strong: rgba(15, 23, 42, 0.15);
   --text: #0f172a;
@@ -141,9 +145,10 @@ select {
 
 .workspace {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
   margin-top: 18px;
+  padding-left: 320px;
   align-items: start;
   min-height: calc(100vh - 88px);
   align-items: start;
@@ -154,13 +159,20 @@ select {
   gap: 14px;
   align-content: start;
   padding-right: 2px;
+  position: fixed;
+  top: 82px;
+  left: 0;
+  z-index: 10;
+  width: 300px;
+  max-height: calc(100vh - 96px);
+  overflow: visible;
 }
 
 .sidebar-card {
   padding: 18px;
   border-radius: var(--radius-xl);
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.96);
+  background: var(--surface-raised);
   box-shadow: var(--shadow);
 }
 
@@ -240,7 +252,7 @@ select {
 
 .location-button {
   display: grid;
-  grid-template-columns: 14px minmax(0, 1fr);
+  grid-template-columns: 14px minmax(0, 1fr) 16px;
   gap: 0 12px;
   align-items: center;
   text-align: left;
@@ -268,6 +280,21 @@ select {
 
 .location-name {
   font-weight: 600;
+  flex: 1;
+}
+
+.location-arrow {
+  width: 14px;
+  height: 14px;
+  opacity: 0;
+  font-size: 20px;
+  transform: translateX(-4px);
+  transition: all 0.2s ease;
+}
+
+.location-arrow.visible {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .location-status {
@@ -307,14 +334,10 @@ select {
 }
 
 .report-lock-banner {
-  position: sticky;
-  top: 92px;
-  z-index: 2;
-  justify-self: start;
-  width: 100%;
+  width: fit-content;
   padding: 10px 14px;
   border: 1px solid rgba(15, 118, 110, 0.16);
-  border-radius: 999px;
+  border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.94);
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
   backdrop-filter: blur(10px);
@@ -376,7 +399,7 @@ select {
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: var(--radius-xl);
-  background: rgba(255, 255, 255, 0.96);
+  background: var(--surface-raised);
   box-shadow: var(--shadow);
 }
 
@@ -513,7 +536,7 @@ select {
 .monthly-card {
   border: 1px solid var(--line);
   border-radius: var(--radius-xl);
-  background: rgba(255, 255, 255, 0.96);
+  background: var(--surface-main);
 }
 
 .hero-copy,
@@ -653,7 +676,7 @@ select {
 .status-card {
   padding: 14px 16px;
   border-radius: var(--radius-lg);
-  background: #ffffff;
+  background: var(--surface-raised);
 }
 
 .status-error {
@@ -781,6 +804,8 @@ select {
 .highlight-card {
   padding: 14px 16px;
   border-radius: var(--radius-lg);
+  background: var(--surface-main);
+  border-color: rgba(15, 23, 42, 0.08);
 }
 
 .highlight-card span {
@@ -806,6 +831,7 @@ select {
 .panel-block {
   padding: 16px;
   border-radius: var(--radius-lg);
+  background: var(--surface-raised);
 }
 
 .panel-head {
@@ -865,8 +891,8 @@ select {
 .meta-grid > div {
   padding: 12px;
   border-radius: var(--radius-lg);
-  background: rgba(15, 23, 42, 0.02);
-  border: 1px solid rgba(15, 23, 42, 0.05);
+  background: var(--surface-nested);
+  border: 1px solid rgba(15, 23, 42, 0.08);
 }
 
 .meta-grid span {
@@ -886,7 +912,8 @@ select {
 .note-card {
   padding: 14px 16px;
   border-radius: var(--radius-lg);
-  background: rgba(15, 23, 42, 0.02);
+  background: var(--surface-nested);
+  border-color: rgba(15, 23, 42, 0.08);
 }
 
 .note-card strong {
@@ -902,7 +929,7 @@ select {
 .panel-note {
   padding: 14px 16px;
   border-radius: var(--radius-lg);
-  background: rgba(15, 23, 42, 0.02);
+  background: var(--surface-muted);
   border: 1px dashed rgba(15, 23, 42, 0.12);
   color: var(--muted);
 }
@@ -918,7 +945,7 @@ select {
   padding: 14px 16px;
   border: 0;
   border-radius: var(--radius-md);
-  background: transparent;
+  background: var(--surface-main);
 }
 
 .monthly-card h4 {
@@ -1267,6 +1294,8 @@ select {
 .exceedance-card {
   padding: 14px;
   border-radius: var(--radius-lg);
+  background: var(--surface-main);
+  border-color: rgba(15, 23, 42, 0.08);
 }
 
 .threshold-list {
@@ -1282,7 +1311,8 @@ select {
   gap: 10px;
   padding: 10px 12px;
   border-radius: 14px;
-  background: rgba(15, 23, 42, 0.02);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .waypoint-strip {
@@ -1292,7 +1322,7 @@ select {
 .waypoint-chip {
   padding: 12px 14px;
   border-radius: var(--radius-lg);
-  background: rgba(15, 23, 42, 0.02);
+  background: var(--surface-main);
 }
 
 .waypoint-chip span {
@@ -1344,7 +1374,14 @@ select {
 
   .sidebar,
   .main-panel {
+    position: static;
+    width: auto;
+    max-height: none;
     overflow: visible;
+  }
+
+  .workspace {
+    padding-left: 0;
   }
 
   .report-lock-banner {

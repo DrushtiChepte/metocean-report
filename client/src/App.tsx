@@ -687,7 +687,9 @@ function MusaffahSummaryCard() {
     <section className="panel-block summary-card">
       <div className="panel-head">
         <h3>Musaffah Port </h3>
-        <h3>Lat - 24.38°N, Lon - 54.47°E</h3>
+        <h3 className="panel-subtitle report-lock-banner">
+          Lat - 24.38°N, Lon - 54.47°E
+        </h3>
       </div>
       <p className="panel-note summary-lead">
         Site study sheet with extreme value analysis, monthly statistics,
@@ -900,6 +902,15 @@ export default function App() {
                     >
                       <span className={`location-status ${report.dataState}`} />
                       <span className="location-name">{report.title}</span>
+                      {report.slug === selectedSlug && (
+                        <img
+                          src="/right-arrow.svg"
+                          alt="arrow"
+                          className={`location-arrow ${
+                            report.slug === selectedSlug ? "visible" : ""
+                          }`}
+                        />
+                      )}
                     </button>
                   ))}
                   {!reports.length ? (
@@ -911,7 +922,7 @@ export default function App() {
           </aside>
 
           <section className="main-panel">
-            {selectedReport && selectedReport.kind !== "metadata" ? (
+            {/* {selectedReport && selectedReport.kind !== "metadata" ? (
               <div
                 key={selectedReport.slug}
                 className="report-lock-banner"
@@ -921,7 +932,7 @@ export default function App() {
                   {formatReportLocation(selectedReport)}
                 </span>
               </div>
-            ) : null}
+            ) : null} */}
             {selectedReport && selectedReport.kind !== "metadata" ? (
               <div className="map-card">
                 <div className="section-head map-card-head">
