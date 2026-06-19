@@ -9,6 +9,11 @@ export default defineConfig({
       "/api": "http://localhost:4000",
     },
   },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./client/src"),
+    },
+  },
   build: {
     outDir: "dist",
     emptyOutDir: true,

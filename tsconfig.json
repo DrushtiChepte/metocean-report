@@ -16,8 +16,10 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "types": ["node"],
-    "baseUrl": "."
+    "paths": {
+      "@/*": ["./client/src/*"]
+    }
   },
-  "include": ["client/src", "server"],
+  "include": ["client/src", "server", "prisma.config.ts"],
   "exclude": ["node_modules", "dist"]
 }
