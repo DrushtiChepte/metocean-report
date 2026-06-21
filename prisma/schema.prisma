@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Client {
+  id Int @id @default(autoincrement())
+
+  name String
+
+  projects Project[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Project {
+  id Int @id @default(autoincrement())
+
+  clientId Int
+
+  name String
+
+  startYear Int?
+  endYear   Int?
+
+  notes String?
+
+  client Client @relation(fields: [clientId], references: [id])
+
+  locations Location[]
+
+  createdBy String?
+  createdAt DateTime @default(now())
+
+  updatedBy String?
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Location {
+  id Int @id @default(autoincrement())
+
+  projectId Int
+
+  name String
+
+  latitude  Float?
+  longitude Float?
+
+  notes String?
+
+  project Project @relation(fields: [projectId], references: [id])
+
+  windData WindTimeSeries[]
+
+  createdBy String?
+  createdAt DateTime @default(now())
+
+  updatedBy String?
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model WindTimeSeries {
+  id BigInt @id @default(autoincrement())
+
+  locationId Int
+
+  dataFrequency String?
+
+  timestamp DateTime
+
+  u10 Float
+  v10 Float
+
+  windSpeed     Float
+  windDirection Float
+
+  fileName String?
+
+  notes String?
+
+  location Location @relation(fields: [locationId], references: [id])
+
+  createdBy String?
+  createdAt DateTime @default(now())
+
+  updatedBy String?
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@unique([locationId, timestamp])
+  @@index([timestamp])
+  @@index([locationId])
+}
