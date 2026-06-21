@@ -4,6 +4,7 @@ import {
   useEffect,
   useMemo,
   useState,
+  type FormEvent,
   type ReactNode,
 } from "react";
 import HarborMap from "./components/HarborMap";
@@ -96,6 +97,233 @@ function MetricCard({ label, value }: { label: string; value: string }) {
   );
 }
 
+type DashboardReport = DashboardData["reports"][number];
+type AuthSession = {
+  username: string;
+  displayName: string;
+};
+
+const AUTH_STORAGE_KEY = "metocean-auth-session";
+const HARDCODED_LOGIN = {
+  username: "admin",
+  password: "metocean2026",
+  displayName: "Admin User",
+};
+
+function loadAuthSession() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const rawSession = window.localStorage.getItem(AUTH_STORAGE_KEY);
+  if (!rawSession) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(rawSession) as Partial<AuthSession> & {
+      name?: string;
+    };
+
+    if (typeof parsed.displayName === "string" && parsed.displayName) {
+      return {
+        username: parsed.username || "admin",
+        displayName: parsed.displayName,
+      };
+    }
+
+    if (typeof parsed.name === "string" && parsed.name) {
+      return {
+        username: parsed.username || "admin",
+        displayName: parsed.name,
+      };
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function saveAuthSession(session: AuthSession) {
+  window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+}
+
+function clearAuthSession() {
+  window.localStorage.removeItem(AUTH_STORAGE_KEY);
+}
+
+function AuthScreen({
+  onSignIn,
+}: {
+  onSignIn: (session: AuthSession) => void;
+}) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const normalizedUsername = username.trim().toLowerCase();
+    const normalizedPassword = password.trim();
+
+    if (
+      normalizedUsername === HARDCODED_LOGIN.username &&
+      normalizedPassword === HARDCODED_LOGIN.password
+    ) {
+      setError(null);
+      onSignIn({
+        username: HARDCODED_LOGIN.username,
+        displayName: HARDCODED_LOGIN.displayName,
+      });
+      return;
+    }
+
+    setError("Invalid username or password.");
+  }
+
+  return (
+    <main className="auth-shell">
+      <section className="auth-panel">
+        <div className="auth-hero">
+          <span className="auth-kicker">Metocean Platform</span>
+          <h1>Sign in to manage project data</h1>
+          <p>
+            Use the login form to access the dashboard, route studies, site
+            reports, and metadata in one workspace.
+          </p>
+          <div className="auth-points">
+            <div>
+              <strong>Single workspace</strong>
+              <span>Keep clients, projects, sites, routes, and metadata organized.</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="auth-card">
+          <div className="auth-copy">
+            <h2>Login</h2>
+            <p>Enter your credentials to continue.</p>
+          </div>
+
+          <form className="login-form" onSubmit={handleSubmit}>
+            <label className="login-field">
+              <span>Username</span>
+              <input
+                type="text"
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                autoComplete="username"
+                placeholder="Enter username"
+              />
+            </label>
+
+            <label className="login-field">
+              <span>Password</span>
+              <input
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                autoComplete="current-password"
+                placeholder="Enter password"
+              />
+            </label>
+
+            {error ? <div className="auth-error">{error}</div> : null}
+
+            <button type="submit" className="login-submit">
+              Login
+            </button>
+          </form>
+
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function SidebarFolder({
+  label,
+  open,
+  onToggle,
+  children,
+  level = 0,
+}: {
+  label: string;
+  open: boolean;
+  onToggle: () => void;
+  children: ReactNode;
+  level?: number;
+}) {
+  return (
+    <div className="tree-folder">
+      <button
+        type="button"
+        className="project-row tree-folder-row"
+        onClick={onToggle}
+        aria-expanded={open}
+        style={{ paddingLeft: `${level * 18}px` }}
+      >
+        <span
+          className={`project-caret ${open ? "open" : ""}`}
+          aria-hidden="true"
+        />
+        <span className="project-name">{label}</span>
+      </button>
+
+      <div className={`tree-children ${open ? "open" : "closed"}`}>
+        <div className="tree-children-inner">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+function SidebarLeaf({
+  report,
+  selectedSlug,
+  onSelect,
+  label,
+  level = 0,
+}: {
+  report: DashboardReport;
+  selectedSlug: string;
+  onSelect: (slug: string) => void;
+  label?: string;
+  level?: number;
+}) {
+  return (
+    <button
+      type="button"
+      className={`location-button tree-leaf ${report.slug === selectedSlug ? "active" : ""}`}
+      onClick={() => onSelect(report.slug)}
+      style={{ paddingLeft: `${16 + level * 18}px` }}
+    >
+      <span className={`location-status ${report.dataState}`} />
+      <span className="location-name">{label ?? report.title}</span>
+      {report.slug === selectedSlug ? (
+        <img
+          src="/right-arrow.svg"
+          alt="arrow"
+          className="location-arrow visible"
+        />
+      ) : null}
+    </button>
+  );
+}
+
+function formatRouteLabel(report: RouteReport) {
+  if (report.slug === "jutal-das") {
+    return "Jutal Offshore to Das Island";
+  }
+
+  if (report.slug === "musaffah-das") {
+    return "Musaffah Port to Das Island";
+  }
+
+  return report.title;
+}
+
 function printProjectReport(
   dashboard: DashboardData | null,
   selectedSlug: string,
@@ -119,6 +347,12 @@ function getOperabilityTone(value: number) {
   if (value >= 0.8) return "good";
   if (value >= 0.7) return "moderate";
   return "low";
+}
+
+function getExceedanceTone(value: number) {
+  if (value <= 10) return "low";
+  if (value <= 25) return "moderate";
+  return "high";
 }
 
 function toMonthlyTrendData(metric: MetricBlock): MonthlyStat[] {
@@ -438,13 +672,24 @@ function renderSite(report: SiteReport) {
           </div>
           <div className="exceedance-grid">
             {report.exceedance.map((group) => (
-              <div key={group.parameter} className="exceedance-card">
+              <div
+                key={group.parameter}
+                className={`exceedance-card ${getExceedanceTone(
+                  Math.max(
+                    ...group.thresholds.map(
+                      (threshold) => threshold.exceedance * 100,
+                    ),
+                  ),
+                )}`}
+              >
                 <strong>{group.parameter}</strong>
                 <div className="threshold-list">
                   {group.thresholds.map((threshold) => (
                     <div
                       key={`${group.parameter}-${threshold.threshold}`}
-                      className="threshold-row"
+                      className={`threshold-row ${getExceedanceTone(
+                        threshold.exceedance * 100,
+                      )}`}
                     >
                       <span>{threshold.threshold}</span>
                       <strong>
@@ -746,6 +991,9 @@ function MusaffahSummaryCard() {
 }
 
 export default function App() {
+  const [authSession, setAuthSession] = useState<AuthSession | null>(() =>
+    loadAuthSession(),
+  );
   const [dashboard, setDashboard] = useState<DashboardData | null>(() => {
     if (typeof window === "undefined") {
       return null;
@@ -773,11 +1021,30 @@ export default function App() {
 
     return sessionStorage.getItem("print-preview-slug") || "musaffah-port";
   });
+  const [clientOpen, setClientOpen] = useState(true);
   const [projectOpen, setProjectOpen] = useState(true);
+  const [sitesOpen, setSitesOpen] = useState(true);
+  const [routesOpen, setRoutesOpen] = useState(true);
+  const [metadataOpen, setMetadataOpen] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!authSession) {
+      clearAuthSession();
+      return;
+    }
+
+    saveAuthSession(authSession);
+  }, [authSession]);
+
+  useEffect(() => {
+    if (!authSession) {
+      setLoading(false);
+      setDashboard(null);
+      return;
+    }
+
     let active = true;
 
     fetchDashboard()
@@ -809,7 +1076,7 @@ export default function App() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [authSession]);
 
   const selectedReport = useMemo(
     () =>
@@ -819,9 +1086,24 @@ export default function App() {
 
   const mapSites = dashboard?.mapSites ?? [];
   const reports = dashboard?.reports ?? [];
+  const siteReports = reports.filter(
+    (report): report is SiteReport => report.kind === "site",
+  );
+  const routeReports = reports.filter(
+    (report): report is RouteReport => report.kind === "route",
+  );
+  const metadataReports = reports.filter(
+    (report): report is MetadataReport => report.kind === "metadata",
+  );
   const isPrintPreview =
     typeof window !== "undefined" &&
     new URLSearchParams(window.location.search).has("print");
+
+  if (!isPrintPreview && !authSession) {
+    return (
+      <AuthScreen onSignIn={setAuthSession} />
+    );
+  }
 
   if (isPrintPreview) {
     return (
@@ -863,62 +1145,107 @@ export default function App() {
       <div className="screen-only">
         <header className="topbar topbar-sticky">
           <img className="topbar-logo" src={logoUrl} alt="IDEABRIX" />
+          {authSession ? (
+            <div className="topbar-auth">
+              <span>{authSession.displayName}</span>
+              <button
+                type="button"
+                className="topbar-logout"
+                onClick={() => {
+                  clearAuthSession();
+                  setAuthSession(null);
+                }}
+              >
+                Logout
+              </button>
+            </div>
+          ) : null}
         </header>
 
         <div className="workspace">
           <aside className="sidebar">
-            <div className="sidebar-card">
-              <span className="eyebrow">Locations</span>
-              <p className="sidebar-copy">
-                Select a location from the project tree to open its map on the
-                right and inspect the digitized data below.
-              </p>
-            </div>
-
-            <div className="sidebar-card">
-              <button
-                type="button"
-                className="project-row"
-                onClick={() => setProjectOpen((open) => !open)}
-                aria-expanded={projectOpen}
-              >
-                <span
-                  className={`project-caret ${projectOpen ? "open" : ""}`}
-                  aria-hidden="true"
-                />
-                <span className="project-name">Project 1</span>
-              </button>
-
-              <div
-                className={`project-tree ${projectOpen ? "open" : "closed"}`}
-              >
-                <div className="location-list">
-                  {reports.map((report) => (
-                    <button
-                      key={report.slug}
-                      type="button"
-                      className={`location-button ${report.slug === selectedSlug ? "active" : ""}`}
-                      onClick={() => setSelectedSlug(report.slug)}
-                    >
-                      <span className={`location-status ${report.dataState}`} />
-                      <span className="location-name">{report.title}</span>
-                      {report.slug === selectedSlug && (
-                        <img
-                          src="/right-arrow.svg"
-                          alt="arrow"
-                          className={`location-arrow ${
-                            report.slug === selectedSlug ? "visible" : ""
-                          }`}
-                        />
-                      )}
-                    </button>
-                  ))}
-                  {!reports.length ? (
-                    <div className="status-card">Loading locations...</div>
-                  ) : null}
-                </div>
+            <div className="sidebar-card tree-card">
+              <div className="sidebar-tree-header">
+                <span className="sidebar-tree-chip">Projects</span>
+                <p>Browse the project tree for sites, routes, and metadata.</p>
               </div>
-            </div>
+
+              <SidebarFolder
+                label="Projects"
+                open={clientOpen}
+                onToggle={() => setClientOpen((open) => !open)}
+              >
+                <SidebarFolder
+                  label="Project 1"
+                  open={projectOpen}
+                  onToggle={() => setProjectOpen((open) => !open)}
+                  level={1}
+                >
+                  <SidebarFolder
+                    label="Sites"
+                    open={sitesOpen}
+                    onToggle={() => setSitesOpen((open) => !open)}
+                    level={2}
+                  >
+                    <div className="tree-leaf-list">
+                      {siteReports.map((report) => (
+                        <SidebarLeaf
+                          key={report.slug}
+                          report={report}
+                          selectedSlug={selectedSlug}
+                          onSelect={setSelectedSlug}
+                          level={3}
+                        />
+                      ))}
+                    </div>
+                  </SidebarFolder>
+
+                  <SidebarFolder
+                    label="Routes"
+                    open={routesOpen}
+                    onToggle={() => setRoutesOpen((open) => !open)}
+                    level={2}
+                  >
+                    <div className="tree-leaf-list">
+                      {routeReports.map((report) => (
+                        <SidebarLeaf
+                          key={report.slug}
+                          report={report}
+                          selectedSlug={selectedSlug}
+                          onSelect={setSelectedSlug}
+                          label={formatRouteLabel(report)}
+                          level={3}
+                        />
+                      ))}
+                    </div>
+                  </SidebarFolder>
+
+                  <SidebarFolder
+                    label="Metadata"
+                    open={metadataOpen}
+                    onToggle={() => setMetadataOpen((open) => !open)}
+                    level={2}
+                  >
+                    <div className="tree-leaf-list">
+                      {metadataReports.map((report) => (
+                        <SidebarLeaf
+                          key={report.slug}
+                          report={report}
+                          selectedSlug={selectedSlug}
+                          onSelect={setSelectedSlug}
+                          label="Metadata"
+                          level={3}
+                        />
+                      ))}
+                    </div>
+                  </SidebarFolder>
+                </SidebarFolder>
+              </SidebarFolder>
+
+              {!reports.length ? (
+                <div className="status-card">Loading locations...</div>
+              ) : null}
+              </div>
           </aside>
 
           <section className="main-panel">
