@@ -21,6 +21,7 @@ export type RoseChartProps = {
   stackName?: string;
   cardClassName?: string;
   note?: string;
+  dataPeriod?: string;
   valueMode?: "count" | "percent";
 };
 
@@ -47,6 +48,53 @@ const directionLabels: Record<number, string> = {
 
 function normalizeAngle(value: number) {
   return ((value % 360) + 360) % 360;
+}
+
+function buildRoseInsight({
+  rows,
+  classes,
+  sectors,
+}: Required<Pick<RoseChartProps, "rows" | "classes" | "sectors">>) {
+  if (!rows.length || !classes.length) {
+    return "";
+  }
+
+  const sectorSize = sectors.length > 1 ? sectors[1] - sectors[0] : 30;
+  const totalCount = rows.length;
+  const sectorCounts = sectors.map(() => 0);
+  const classCounts = classes.map(() => 0);
+
+  for (const row of rows) {
+    const direction = normalizeAngle(row.direction);
+    const sectorIndex =
+      Math.floor((direction + sectorSize / 2) / sectorSize) % sectors.length;
+    const classIndex = classes.findIndex(
+      (roseClass) => row.value >= roseClass.min && row.value < roseClass.max,
+    );
+    const resolvedClassIndex =
+      classIndex >= 0 ? classIndex : classes.length - 1;
+
+    sectorCounts[sectorIndex] += 1;
+    classCounts[resolvedClassIndex] += 1;
+  }
+
+  const dominantSectorIndex = sectorCounts.reduce(
+    (bestIndex, count, index) =>
+      count > sectorCounts[bestIndex] ? index : bestIndex,
+    0,
+  );
+  const dominantClassIndex = classCounts.reduce(
+    (bestIndex, count, index) =>
+      count > classCounts[bestIndex] ? index : bestIndex,
+    0,
+  );
+  const dominantDirection = sectors[dominantSectorIndex];
+  const directionLabel = directionLabels[dominantDirection] || `${dominantDirection} deg`;
+  const directionShare =
+    (sectorCounts[dominantSectorIndex] / totalCount) * 100;
+  const classShare = (classCounts[dominantClassIndex] / totalCount) * 100;
+
+  return `Most frequent direction: ${directionLabel} (${directionShare.toFixed(1)}% of records). Most common band: ${classes[dominantClassIndex].label} (${classShare.toFixed(1)}% of records).`;
 }
 
 function buildRoseOptions({
@@ -209,6 +257,14 @@ function buildRoseOptions({
       ),
       axisLabel: {
         show: true,
+        margin: 10,
+        color: "#334155",
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
+        borderColor: "rgba(148, 163, 184, 0.35)",
+        borderRadius: 4,
+        borderWidth: 1,
+        padding: [2, 4],
+        z: 10,
         formatter: (value: number) =>
           valueMode === "percent"
             ? value.toFixed(1) + "%"
@@ -232,6 +288,7 @@ export default function RoseChart({
   stackName = "rose",
   cardClassName,
   note,
+  dataPeriod,
   valueMode = "percent",
 }: RoseChartProps) {
   const option = useMemo(
@@ -246,6 +303,15 @@ export default function RoseChart({
       }),
     [title, rows, classes, sectors, stackName, valueMode],
   );
+  const insight = useMemo(
+    () =>
+      buildRoseInsight({
+        rows,
+        classes,
+        sectors,
+      }),
+    [rows, classes, sectors],
+  );
 
   return (
     <section className={`chart-card ${cardClassName ?? ""}`.trim()}>
@@ -257,7 +323,14 @@ export default function RoseChart({
           lazyUpdate
         />
       </div>
+      {dataPeriod ? (
+        <p className="chart-period">
+          Data period: <strong>{dataPeriod}</strong>. Values represent the
+          share of valid records in each direction and value band.
+        </p>
+      ) : null}
       {note ? <p className="chart-note">{note}</p> : null}
+      {insight ? <p className="chart-insight">{insight}</p> : null}
     </section>
   );
 }

@@ -199,7 +199,9 @@ function AuthScreen({
           <div className="auth-points">
             <div>
               <strong>Single workspace</strong>
-              <span>Keep clients, projects, sites, routes, and metadata organized.</span>
+              <span>
+                Keep clients, projects, sites, routes, and metadata organized.
+              </span>
             </div>
           </div>
         </div>
@@ -239,7 +241,6 @@ function AuthScreen({
               Login
             </button>
           </form>
-
         </div>
       </section>
     </main>
@@ -281,6 +282,101 @@ function getThresholdTone(index: number) {
   if (index === 0) return "low";
   if (index === 1) return "moderate";
   return "high";
+}
+
+function formatTextList(items: string[]) {
+  if (items.length <= 1) {
+    return items[0] ?? "";
+  }
+
+  if (items.length === 2) {
+    return `${items[0]} and ${items[1]}`;
+  }
+
+  return `${items.slice(0, -1).join(", ")}, and ${items.at(-1)}`;
+}
+
+function getOperationalWindowInsight(
+  windows: SiteReport["operationalWindows"],
+) {
+  if (!windows?.months.length) {
+    return "";
+  }
+
+  const excellentMonths = windows.months
+    .filter((month) => month.operability >= 0.9)
+    .map((month) => month.month);
+
+  if (excellentMonths.length) {
+    return `${formatTextList(excellentMonths)} show 90%+ operability, making them the strongest months for planned marine operations.`;
+  }
+
+  const bestMonth = windows.months.reduce((best, month) =>
+    month.operability > best.operability ? month : best,
+  );
+
+  return `${bestMonth.month} has the highest operability at ${(bestMonth.operability * 100).toFixed(1)}%, making it the preferred planning month in this dataset.`;
+}
+
+function getExceedanceInsight(exceedance: SiteReport["exceedance"]) {
+  if (!exceedance?.length) {
+    return "";
+  }
+
+  const highestThresholds = exceedance
+    .map((group) => group.thresholds.at(-1))
+    .filter(
+      (threshold): threshold is { threshold: number; exceedance: number } =>
+        Boolean(threshold),
+    );
+
+  if (!highestThresholds.length) {
+    return "";
+  }
+
+  const maxHighThresholdExceedance = Math.max(
+    ...highestThresholds.map((threshold) => threshold.exceedance),
+  );
+
+  return `At the highest listed thresholds, exceedance remains below ${(maxHighThresholdExceedance * 100).toFixed(2)}%, indicating low occurrence of limiting conditions.`;
+}
+
+function getParameterMeaning(parameter: string) {
+  const normalized = parameter.toLowerCase();
+
+  if (normalized.includes("wind")) {
+    return "Wind speed limit for lifting, transfer, and vessel handling.";
+  }
+
+  if (normalized.includes("wave_hs")) {
+    return "Significant wave height, a key control for marine workability.";
+  }
+
+  if (normalized.includes("wave_tp")) {
+    return "Peak wave period, used to understand vessel motion response.";
+  }
+
+  if (normalized.includes("swell_hs")) {
+    return "Swell height from longer-range sea conditions.";
+  }
+
+  if (normalized.includes("swell_tp")) {
+    return "Swell period, useful for assessing longer-period motion effects.";
+  }
+
+  return "Probability of exceeding the selected operating thresholds.";
+}
+
+function getParameterDisplayName(parameter: string) {
+  const labels: Record<string, string> = {
+    "Wind (m/s)": "Wind Speed",
+    "Wave_Hs (m)": "Wave Height",
+    "Wave_Tp (s)": "Wave Period",
+    "Swell_Hs (m)": "Swell Height",
+    "Swell_Tp (s)": "Swell Period",
+  };
+
+  return labels[parameter] ?? parameter;
 }
 
 function toMonthlyTrendData(metric: MetricBlock): MonthlyStat[] {
@@ -561,6 +657,11 @@ function renderSite(report: SiteReport) {
           <div className="panel-head">
             <h3>Operational windows</h3>
           </div>
+          <p className="section-clarity">
+            Percentage of time each month when conditions remain within the
+            selected operating limits. <br></br>(wind_speed &lt;= 7m/s and
+            wave_height &lt;= 0.5m)
+          </p>
 
           <div className="operability-legend">
             {[
@@ -589,7 +690,10 @@ function renderSite(report: SiteReport) {
             ))}
           </div>
 
-          <p className="panel-note">{report.operationalWindows.note}</p>
+          {/* <p className="panel-note">{report.operationalWindows.note}</p> */}
+          <p className="panel-insight">
+            {getOperationalWindowInsight(report.operationalWindows)}
+          </p>
         </section>
       ) : null}
 
@@ -598,12 +702,19 @@ function renderSite(report: SiteReport) {
           <div className="panel-head">
             <h3>Overall exceedance probability</h3>
           </div>
+          <p className="section-clarity">
+            Probability that each metocean parameter exceeds the listed
+            threshold value.
+          </p>
           <div className="exceedance-grid">
             {report.exceedance.map((group) => (
               <div key={group.parameter} className="exceedance-card">
                 <div className="exceedance-card-head">
-                  <strong>{group.parameter}</strong>
+                  <strong>{getParameterDisplayName(group.parameter)}</strong>
                 </div>
+                <p className="exceedance-card-caption">
+                  {getParameterMeaning(group.parameter)}
+                </p>
                 <div className="threshold-strip">
                   {group.thresholds.map((threshold, index) => (
                     <div
@@ -618,6 +729,9 @@ function renderSite(report: SiteReport) {
               </div>
             ))}
           </div>
+          <p className="panel-insight">
+            {getExceedanceInsight(report.exceedance)}
+          </p>
         </section>
       ) : null}
     </>
@@ -1017,9 +1131,7 @@ export default function App() {
     new URLSearchParams(window.location.search).has("print");
 
   if (!isPrintPreview && !authSession) {
-    return (
-      <AuthScreen onSignIn={setAuthSession} />
-    );
+    return <AuthScreen onSignIn={setAuthSession} />;
   }
 
   if (isPrintPreview) {

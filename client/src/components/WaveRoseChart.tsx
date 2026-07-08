@@ -161,7 +161,8 @@ export default function WaveRoseChart({
         rows={heightRows}
         classes={waveHeightClasses}
         cardClassName="wave-height-card"
-        note="Wave height distribution by direction."
+        dataPeriod="1985-2000"
+        note="Wave height distribution by direction. Use this to identify the directions that most often contribute to sea-state limits."
         valueMode="percent"
       />
       <RoseChart
@@ -169,7 +170,8 @@ export default function WaveRoseChart({
         rows={periodRows}
         classes={wavePeriodClasses}
         cardClassName="wave-period-card"
-        note="Peak wave period distribution by direction."
+        dataPeriod="1985-2000"
+        note="Peak wave period distribution by direction. Longer period bands can indicate greater vessel motion sensitivity even when wave height is moderate."
         valueMode="percent"
       />
     </div>

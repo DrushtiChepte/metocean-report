@@ -137,7 +137,8 @@ export default function WindRoseChart({
       classes={windSpeedClasses}
       stackName="wind"
       cardClassName="wind-rose-card"
-      note="Direction is binned into 12 sectors of 30 degrees and stacked by wind speed class."
+      dataPeriod="1985-2000"
+      note="Direction is binned into 12 sectors of 30 degrees and stacked by wind speed class. Use this to identify prevailing wind approach directions and the frequency of stronger wind bands."
     />
   );
 }
