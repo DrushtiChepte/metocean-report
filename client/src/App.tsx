@@ -1,16 +1,19 @@
 import {
   Suspense,
   lazy,
+  type Dispatch,
   useEffect,
   useMemo,
   useState,
   type FormEvent,
+  type SetStateAction,
   type ReactNode,
 } from "react";
 import HarborMap from "./components/HarborMap";
 import MonthlyTrendChart, {
   type MonthlyStat,
 } from "./components/MonthlyTrendChart";
+import SidebarTree from "./components/SidebarTree";
 import ReportCharts from "./components/ReportCharts";
 import { fetchDashboard } from "./api";
 import type {
@@ -243,87 +246,6 @@ function AuthScreen({
   );
 }
 
-function SidebarFolder({
-  label,
-  open,
-  onToggle,
-  children,
-  level = 0,
-}: {
-  label: string;
-  open: boolean;
-  onToggle: () => void;
-  children: ReactNode;
-  level?: number;
-}) {
-  return (
-    <div className="tree-folder">
-      <button
-        type="button"
-        className="project-row tree-folder-row"
-        onClick={onToggle}
-        aria-expanded={open}
-        style={{ paddingLeft: `${level * 18}px` }}
-      >
-        <span
-          className={`project-caret ${open ? "open" : ""}`}
-          aria-hidden="true"
-        />
-        <span className="project-name">{label}</span>
-      </button>
-
-      <div className={`tree-children ${open ? "open" : "closed"}`}>
-        <div className="tree-children-inner">{children}</div>
-      </div>
-    </div>
-  );
-}
-
-function SidebarLeaf({
-  report,
-  selectedSlug,
-  onSelect,
-  label,
-  level = 0,
-}: {
-  report: DashboardReport;
-  selectedSlug: string;
-  onSelect: (slug: string) => void;
-  label?: string;
-  level?: number;
-}) {
-  return (
-    <button
-      type="button"
-      className={`location-button tree-leaf ${report.slug === selectedSlug ? "active" : ""}`}
-      onClick={() => onSelect(report.slug)}
-      style={{ paddingLeft: `${16 + level * 18}px` }}
-    >
-      <span className={`location-status ${report.dataState}`} />
-      <span className="location-name">{label ?? report.title}</span>
-      {report.slug === selectedSlug ? (
-        <img
-          src="/right-arrow.svg"
-          alt="arrow"
-          className="location-arrow visible"
-        />
-      ) : null}
-    </button>
-  );
-}
-
-function formatRouteLabel(report: RouteReport) {
-  if (report.slug === "jutal-das") {
-    return "Jutal Offshore to Das Island";
-  }
-
-  if (report.slug === "musaffah-das") {
-    return "Musaffah Port to Das Island";
-  }
-
-  return report.title;
-}
-
 function printProjectReport(
   dashboard: DashboardData | null,
   selectedSlug: string,
@@ -352,6 +274,12 @@ function getOperabilityTone(value: number) {
 function getExceedanceTone(value: number) {
   if (value <= 10) return "low";
   if (value <= 25) return "moderate";
+  return "high";
+}
+
+function getThresholdTone(index: number) {
+  if (index === 0) return "low";
+  if (index === 1) return "moderate";
   return "high";
 }
 
@@ -666,35 +594,24 @@ function renderSite(report: SiteReport) {
       ) : null}
 
       {report.exceedance?.length ? (
-        <section className="panel-block">
+        <section className="panel-block exceedance-section">
           <div className="panel-head">
             <h3>Overall exceedance probability</h3>
           </div>
           <div className="exceedance-grid">
             {report.exceedance.map((group) => (
-              <div
-                key={group.parameter}
-                className={`exceedance-card ${getExceedanceTone(
-                  Math.max(
-                    ...group.thresholds.map(
-                      (threshold) => threshold.exceedance * 100,
-                    ),
-                  ),
-                )}`}
-              >
-                <strong>{group.parameter}</strong>
-                <div className="threshold-list">
-                  {group.thresholds.map((threshold) => (
+              <div key={group.parameter} className="exceedance-card">
+                <div className="exceedance-card-head">
+                  <strong>{group.parameter}</strong>
+                </div>
+                <div className="threshold-strip">
+                  {group.thresholds.map((threshold, index) => (
                     <div
                       key={`${group.parameter}-${threshold.threshold}`}
-                      className={`threshold-row ${getExceedanceTone(
-                        threshold.exceedance * 100,
-                      )}`}
+                      className={`threshold-pill ${getThresholdTone(index)}`}
                     >
-                      <span>{threshold.threshold}</span>
-                      <strong>
-                        {(threshold.exceedance * 100).toFixed(2)}%
-                      </strong>
+                      <strong>{threshold.threshold}</strong>
+                      <span>{(threshold.exceedance * 100).toFixed(2)}%</span>
                     </div>
                   ))}
                 </div>
@@ -1164,88 +1081,24 @@ export default function App() {
 
         <div className="workspace">
           <aside className="sidebar">
-            <div className="sidebar-card tree-card">
-              <div className="sidebar-tree-header">
-                <span className="sidebar-tree-chip">Projects</span>
-                <p>Browse the project tree for sites, routes, and metadata.</p>
-              </div>
-
-              <SidebarFolder
-                label="Projects"
-                open={clientOpen}
-                onToggle={() => setClientOpen((open) => !open)}
-              >
-                <SidebarFolder
-                  label="Project 1"
-                  open={projectOpen}
-                  onToggle={() => setProjectOpen((open) => !open)}
-                  level={1}
-                >
-                  <SidebarFolder
-                    label="Sites"
-                    open={sitesOpen}
-                    onToggle={() => setSitesOpen((open) => !open)}
-                    level={2}
-                  >
-                    <div className="tree-leaf-list">
-                      {siteReports.map((report) => (
-                        <SidebarLeaf
-                          key={report.slug}
-                          report={report}
-                          selectedSlug={selectedSlug}
-                          onSelect={setSelectedSlug}
-                          level={3}
-                        />
-                      ))}
-                    </div>
-                  </SidebarFolder>
-
-                  <SidebarFolder
-                    label="Routes"
-                    open={routesOpen}
-                    onToggle={() => setRoutesOpen((open) => !open)}
-                    level={2}
-                  >
-                    <div className="tree-leaf-list">
-                      {routeReports.map((report) => (
-                        <SidebarLeaf
-                          key={report.slug}
-                          report={report}
-                          selectedSlug={selectedSlug}
-                          onSelect={setSelectedSlug}
-                          label={formatRouteLabel(report)}
-                          level={3}
-                        />
-                      ))}
-                    </div>
-                  </SidebarFolder>
-
-                  <SidebarFolder
-                    label="Metadata"
-                    open={metadataOpen}
-                    onToggle={() => setMetadataOpen((open) => !open)}
-                    level={2}
-                  >
-                    <div className="tree-leaf-list">
-                      {metadataReports.map((report) => (
-                        <SidebarLeaf
-                          key={report.slug}
-                          report={report}
-                          selectedSlug={selectedSlug}
-                          onSelect={setSelectedSlug}
-                          label="Metadata"
-                          level={3}
-                        />
-                      ))}
-                    </div>
-                  </SidebarFolder>
-                </SidebarFolder>
-              </SidebarFolder>
-
-              {!reports.length ? (
-                <div className="status-card">Loading locations...</div>
-              ) : null}
-              </div>
+            <SidebarTree
+              selectedSlug={selectedSlug}
+              setSelectedSlug={setSelectedSlug}
+              clientOpen={clientOpen}
+              setClientOpen={setClientOpen}
+              projectOpen={projectOpen}
+              setProjectOpen={setProjectOpen}
+              sitesOpen={sitesOpen}
+              setSitesOpen={setSitesOpen}
+              routesOpen={routesOpen}
+              setRoutesOpen={setRoutesOpen}
+              metadataOpen={metadataOpen}
+              setMetadataOpen={setMetadataOpen}
+              siteReports={siteReports}
+              routeReports={routeReports}
+              metadataReports={metadataReports}
+              reports={reports}
+            />
           </aside>
 
           <section className="main-panel">
