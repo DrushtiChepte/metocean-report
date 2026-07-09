@@ -267,7 +267,6 @@ function AuthScreen({
         <div className="auth-hero">
           <span className="auth-kicker">YOUR METOCEAN REPORT</span>
           <h1>Sign in to look at your metocean report </h1>
-         
         </div>
 
         <div className="auth-card">
@@ -844,6 +843,14 @@ function ExtremeValuePanel({
           <strong>RP100</strong> = 100 year return period
         </span>
       </div>
+      <div className="recommendation-box extreme-value-recommendation">
+        <RecommendationTitle>Recommendations</RecommendationTitle>
+        <ul>
+          {extremeValueRecommendations.map((recommendation) => (
+            <li key={recommendation}>{recommendation}</li>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }
@@ -925,16 +932,7 @@ function renderSite(report: SiteReport) {
             rp100: row.rp100,
             method: row.method,
           }))}
-        >
-          <div className="recommendation-box extreme-value-recommendation">
-            <RecommendationTitle>Recommendations</RecommendationTitle>
-            <ul>
-              {extremeValueRecommendations.map((recommendation) => (
-                <li key={recommendation}>{recommendation}</li>
-              ))}
-            </ul>
-          </div>
-        </TablePanel>
+        />
       ) : null}
 
       {report.monthlyStats?.length ? (
@@ -1370,7 +1368,7 @@ function MusaffahSummaryCard() {
           Lat - 24.38°N, Lon - 54.47°E
         </h3>
       </div>
-      
+
       <div className="summary-highlights">
         <div className="highlight-card">
           <span>Wind Speed RP100</span>
