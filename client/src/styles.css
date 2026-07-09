@@ -703,6 +703,7 @@ select {
   margin: 10px 0 0;
   color: var(--muted);
   line-height: 1.55;
+  font-size: 0.86rem;
 }
 
 .chart-period {
@@ -725,6 +726,53 @@ select {
   color: #164e63;
   font-size: 0.86rem;
   line-height: 1.45;
+}
+
+.recommendation-box {
+  margin: 12px 0 0;
+  padding: 13px 15px;
+  border-radius: var(--radius-md);
+  background: #fef7df;
+  border: 1px solid #f5d98b;
+  color: #713f12;
+  font-size: 0.88rem;
+  line-height: 1.48;
+}
+
+.recommendation-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #854d0e;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+
+.recommendation-title img {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.recommendation-box ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.recommendation-box li + li {
+  margin-top: 6px;
+}
+
+.monthly-recommendation {
+  background: #f4f8e8;
+  border-color: #d7e8a5;
+  color: #365314;
+}
+
+.monthly-recommendation .recommendation-title {
+  color: #3f6212;
 }
 
 .wind-rose-layout {
@@ -1083,7 +1131,8 @@ select {
 .highlight-card strong {
   display: block;
   margin-top: 8px;
-  font-size: 1.08rem;
+  font-size: 1.18rem;
+  letter-spacing: -0.01em;
 }
 
 .report-body {
@@ -1109,7 +1158,10 @@ select {
 .panel-head h3,
 .monthly-card h4 {
   margin: 0;
-  font-size: 1rem;
+  color: var(--text);
+  font-size: 1.14rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
 
 .table-scroll {
@@ -1183,6 +1235,7 @@ select {
 .note-card strong {
   display: block;
   margin-bottom: 6px;
+  font-size: 1.02rem;
 }
 
 .note-card p {
@@ -1214,6 +1267,103 @@ select {
   color: #164e63;
   font-size: 0.88rem;
   line-height: 1.45;
+}
+
+.monthly-exceedance-section .section-clarity {
+  margin-top: -4px;
+}
+
+.monthly-exceedance-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 16px;
+}
+
+.monthly-exceedance-toolbar label {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.monthly-exceedance-toolbar select {
+  min-width: 210px;
+  padding: 10px 13px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+  background: var(--surface-main);
+  color: var(--text);
+  font: inherit;
+}
+
+.monthly-exceedance-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(280px, 2fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.monthly-exceedance-table-wrap {
+  max-width: 860px;
+  margin: 0;
+  padding: 0 12px 12px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: var(--radius-lg);
+  background: var(--surface-main);
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.monthly-exceedance-table {
+  min-width: 520px;
+  table-layout: fixed;
+  font-size: 0.94rem;
+}
+
+.monthly-exceedance-table th,
+.monthly-exceedance-table td {
+  padding: 9px 12px;
+}
+
+.monthly-exceedance-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-main);
+  color: #92400e;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.monthly-exceedance-table th:first-child,
+.monthly-exceedance-table td:first-child {
+  width: 130px;
+  font-weight: 400;
+}
+
+.monthly-exceedance-table tbody tr:nth-child(even) {
+  background: rgba(15, 23, 42, 0.025);
+}
+
+.monthly-exceedance-table th:not(:first-child),
+.monthly-exceedance-table td:not(:first-child) {
+  text-align: right;
+}
+
+.monthly-exceedance-table td:not(:first-child) {
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+}
+
+.monthly-exceedance-recommendation {
+  margin: 0;
+  min-height: 100%;
+}
+
+.monthly-exceedance-recommendation p {
+  margin: 0;
 }
 
 .monthly-stack {
@@ -1582,7 +1732,7 @@ select {
 
 .exceedance-card {
   width: 100%;
-  padding: 10px;
+  padding: 14px;
   border-radius: 18px;
   background: var(--surface-main);
   border-color: rgba(15, 23, 42, 0.08);
@@ -1597,15 +1747,25 @@ select {
 }
 
 .exceedance-card-head strong {
-  font-size: 0.92rem;
+  font-size: 1.08rem;
+  letter-spacing: -0.01em;
 }
 
 .exceedance-card-caption {
-  min-height: 34px;
-  margin: -2px 0 10px;
+  margin: -2px 0 8px;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.9rem;
   line-height: 1.35;
+}
+
+.threshold-guide {
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.035);
+  color: #475569;
+  font-size: 0.78rem;
+  line-height: 1.4;
 }
 
 .threshold-strip {
@@ -1737,6 +1897,10 @@ select {
   }
 
   .wind-rose-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .monthly-exceedance-layout {
     grid-template-columns: 1fr;
   }
 

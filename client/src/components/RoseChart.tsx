@@ -22,6 +22,7 @@ export type RoseChartProps = {
   cardClassName?: string;
   note?: string;
   dataPeriod?: string;
+  recommendations?: string[];
   valueMode?: "count" | "percent";
 };
 
@@ -89,9 +90,9 @@ function buildRoseInsight({
     0,
   );
   const dominantDirection = sectors[dominantSectorIndex];
-  const directionLabel = directionLabels[dominantDirection] || `${dominantDirection} deg`;
-  const directionShare =
-    (sectorCounts[dominantSectorIndex] / totalCount) * 100;
+  const directionLabel =
+    directionLabels[dominantDirection] || `${dominantDirection} deg`;
+  const directionShare = (sectorCounts[dominantSectorIndex] / totalCount) * 100;
   const classShare = (classCounts[dominantClassIndex] / totalCount) * 100;
 
   return `Most frequent direction: ${directionLabel} (${directionShare.toFixed(1)}% of records). Most common band: ${classes[dominantClassIndex].label} (${classShare.toFixed(1)}% of records).`;
@@ -289,6 +290,7 @@ export default function RoseChart({
   cardClassName,
   note,
   dataPeriod,
+  recommendations,
   valueMode = "percent",
 }: RoseChartProps) {
   const option = useMemo(
@@ -325,12 +327,24 @@ export default function RoseChart({
       </div>
       {dataPeriod ? (
         <p className="chart-period">
-          Data period: <strong>{dataPeriod}</strong>. Values represent the
-          share of valid records in each direction and value band.
+          Data period: <strong>{dataPeriod}</strong>.
         </p>
       ) : null}
       {note ? <p className="chart-note">{note}</p> : null}
       {insight ? <p className="chart-insight">{insight}</p> : null}
+      {recommendations?.length ? (
+        <div className="recommendation-box chart-recommendation">
+          <strong className="recommendation-title">
+            <img src="/recommendation-robot.png" alt="" aria-hidden="true" />
+            <span>Recommendations</span>
+          </strong>
+          <ul>
+            {recommendations.map((recommendation) => (
+              <li key={recommendation}>{recommendation}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </section>
   );
 }

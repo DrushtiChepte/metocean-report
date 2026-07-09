@@ -138,7 +138,13 @@ export default function WindRoseChart({
       stackName="wind"
       cardClassName="wind-rose-card"
       dataPeriod="1985-2000"
-      note="Direction is binned into 12 sectors of 30 degrees and stacked by wind speed class. Use this to identify prevailing wind approach directions and the frequency of stronger wind bands."
+      note="The wind rose summarizes the distribution of wind direction and speed, highlighting the prevailing wind directions and the frequency of stronger wind conditions."
+      recommendations={[
+        "Prevailing WNW winds should be considered when selecting vessel or barge orientation during load-in/load-out operations.",
+        "Wind conditions are predominantly light to moderate, indicating favorable weather windows for routine lifting activities.",
+        "Schedule critical heavy lifts during forecast periods with lower wind speeds to maximize operational safety.",
+        "Continue monitoring short-term weather forecasts, particularly when stronger WNW winds are predicted.",
+      ]}
     />
   );
 }

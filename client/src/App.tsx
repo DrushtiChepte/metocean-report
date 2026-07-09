@@ -19,6 +19,9 @@ import { fetchDashboard } from "./api";
 import type {
   DashboardData,
   MetricBlock,
+  MonthlyExceedanceGroup,
+  MonthlyExceedanceRecommendations,
+  MonthlyExceedanceRow,
   MetadataReport,
   RouteReport,
   SiteReport,
@@ -43,6 +46,69 @@ const monthLabels = [
   "Dec",
 ];
 const seasonLabels = ["Monsoon", "Post-monsoon", "Pre-monsoon", "Winter"];
+
+const monthlyExceedanceOptions = [
+  { key: "wind", label: "Wind Speed", unit: "m/s" },
+  { key: "waveHeight", label: "Wave Height", unit: "m" },
+  { key: "wavePeriod", label: "Wave Period", unit: "s" },
+  { key: "swellHeight", label: "Swell Height", unit: "m" },
+  { key: "swellPeriod", label: "Swell Period", unit: "s" },
+] as const;
+
+type MonthlyExceedanceKey = (typeof monthlyExceedanceOptions)[number]["key"];
+
+const seasonalRecommendations = [
+  "The simultaneous occurrence of higher wave heights and longer wave periods during Winter and Pre-monsoon is expected to increase vessel motions alongside berths, potentially affecting cargo transfer efficiency, mooring performance, and pilot boarding operations. During Post-monsoon, the comparatively calmer sea state provides a wider operational envelope for routine marine logistics.",
+  "Higher upper-percentile wind speeds during Pre-monsoon and Winter increase the likelihood of operational wind limits being approached during crane-assisted cargo handling, heavy lifts, and load-in/load-out campaigns. Seasonal weather downtime assessments should therefore account for increased wind-related interruptions during these periods.",
+  "The combined seasonal statistics indicate that Post-monsoon provides the most favourable environmental conditions for routine port operations, with lower wind speeds, reduced wave activity, and weak currents contributing to improved operational availability.",
+  "The consistently weak ocean current regime indicates that vessel manoeuvrability and mooring loads are expected to be governed primarily by wind and wave conditions rather than hydrodynamic current forces. Tug assistance and berth allocation strategies should therefore prioritize anticipated wind and sea-state conditions.",
+];
+
+const overallExceedanceRecommendations = [
+  "Wave heights exceeding operational limits occur rarely, indicating a high likelihood of maintaining stable vessel conditions during cargo transfer operations.",
+  "Wave period is the most frequently exceeded environmental parameter and should be assessed alongside wave height when defining operational weather windows.",
+  "Swell conditions remain within operational limits for the majority of the observation period, reducing the likelihood of long-period vessel motions affecting operations.",
+  "Wind-related operational interruptions are expected to be infrequent, although forecast wind conditions should be reviewed before critical lifting activities.",
+  "Operational decisions should be based on the combined assessment of wind, wave height, wave period, and swell rather than a single environmental parameter.",
+];
+
+const extremeValueRecommendations = [
+  "Gust loading should be considered in structural design and equipment selection, particularly for cranes, lifting equipment, and temporary offshore structures.",
+  "The increase from RP10 (12.83 m/s) to RP100 (12.96 m/s) is relatively small, suggesting that the extreme wind climate at the site is stable.",
+  "Use RP1-RP10 return levels for operational planning, weather risk assessments, and temporary offshore activities such as vessel operations, heavy lifts, and Load-In/Load-Out (LILO).",
+  "Use RP50-RP100 return levels as the design basis for permanent offshore and coastal infrastructure, including platforms, berths, breakwaters, and mooring systems.",
+];
+
+const defaultMonthlyExceedanceRecommendations: Record<
+  MonthlyExceedanceKey,
+  string[]
+> = {
+  wind: [
+    "Prioritise wind-sensitive activities such as Load-In/Load-Out (LILO), heavy lifting, crane operations, and offshore installation during August-October, when the probability of exceeding operational wind limits is lowest and weather downtime is expected to be minimal.",
+    "Projects scheduled between February and May should incorporate additional weather contingency and flexible work planning, as this period exhibits the highest wind exceedance frequencies and therefore the greatest potential for operational interruptions.",
+    "Monthly exceedance statistics should be used in weather downtime assessments instead of annual averages, allowing project schedules and operational limits to better reflect the observed seasonal variability in the wind climate.",
+  ],
+  waveHeight: [
+    "Marine construction, dredging, vessel mobilisation, and cargo handling activities should preferably be scheduled during August-October, when exceedance of operational wave-height thresholds is at its lowest, resulting in improved vessel operability.",
+    "Although exceedance above 1.0 m is relatively uncommon, wave height should still be evaluated alongside wind conditions when planning floating operations, as the combined environmental loading governs overall operational performance.",
+    "Site-specific wave-height limits should be incorporated into operability analyses to provide realistic estimates of weather downtime for different vessel classes and offshore construction activities.",
+  ],
+  wavePeriod: [
+    "Wave period should be considered together with significant wave height when assessing vessel motions, particularly for floating cranes, barges, and offshore support vessels where long-period waves may influence operational performance.",
+    "Motion-sensitive marine activities should, where practicable, be scheduled during August-October, when exceedance of longer wave periods is lowest and vessel responses are expected to be more favourable.",
+    "Engineering operability assessments should include wave-period criteria in addition to wave-height limits, particularly for projects involving floating assets or precision offshore operations.",
+  ],
+  swellHeight: [
+    "Activities sensitive to vessel motions, including crew transfer, offshore installation, and survey operations, should be preferentially planned during August-October, when swell-height exceedance is consistently at its lowest.",
+    "Swell height should be assessed together with locally generated wave conditions, as the combined sea state provides a more representative measure of vessel operability than either parameter alone.",
+    "While swell height is not expected to be the governing operational constraint, it should remain an integral component of weather downtime assessments for floating marine operations.",
+  ],
+  swellPeriod: [
+    "Operational planning for floating vessels should account for swell period in addition to swell height, as longer-period swells can influence vessel motions even under relatively small wave heights.",
+    "Projects requiring high vessel stability should preferably be undertaken during August-October, when exceedance of longer swell periods is minimal and overall sea-state conditions are more favourable.",
+    "Swell-period statistics should be integrated with wind and wave assessments to support comprehensive operability evaluations and minimise weather-related operational risks for offshore campaigns.",
+  ],
+};
 
 function formatNumber(value: number | string) {
   if (typeof value === "string") {
@@ -97,6 +163,15 @@ function MetricCard({ label, value }: { label: string; value: string }) {
       <span>{label}</span>
       <strong>{value}</strong>
     </div>
+  );
+}
+
+function RecommendationTitle({ children }: { children: ReactNode }) {
+  return (
+    <strong className="recommendation-title">
+      <img src="/recommendation-robot.png" alt="" aria-hidden="true" />
+      <span>{children}</span>
+    </strong>
   );
 }
 
@@ -297,14 +372,32 @@ function getOperationalWindowInsight(
     .map((month) => month.month);
 
   if (excellentMonths.length) {
-    return `${formatTextList(excellentMonths)} show 90%+ operability, making them the strongest months for planned marine operations.`;
+    return `Higher operability means fewer weather delays and better schedule certainty. Best execution window: ${formatTextList(excellentMonths)}, with 90%+ operability.`;
   }
 
   const bestMonth = windows.months.reduce((best, month) =>
     month.operability > best.operability ? month : best,
   );
 
-  return `${bestMonth.month} has the highest operability at ${(bestMonth.operability * 100).toFixed(1)}%, making it the preferred planning month in this dataset.`;
+  return `Higher operability means fewer weather delays and better schedule certainty. Best execution window: ${bestMonth.month}, with ${(bestMonth.operability * 100).toFixed(1)}% operability.`;
+}
+
+function getOperationalWindowRiskNote(
+  windows: SiteReport["operationalWindows"],
+) {
+  if (!windows?.months.length) {
+    return "";
+  }
+
+  const contingencyMonths = windows.months
+    .filter((month) => month.operability < 0.8)
+    .map((month) => month.month);
+
+  if (!contingencyMonths.length) {
+    return "All months are at or above 80% operability, indicating limited seasonal weather contingency requirement.";
+  }
+
+  return `${formatTextList(contingencyMonths)} may require more weather contingency.`;
 }
 
 function getExceedanceInsight(exceedance: SiteReport["exceedance"]) {
@@ -374,6 +467,215 @@ function getParameterDisplayName(parameter: string) {
   return labels[parameter] ?? parameter;
 }
 
+function formatPercent(value: number) {
+  const formatted = Number.isInteger(value)
+    ? value.toFixed(1)
+    : value.toFixed(2).replace(/0$/, "");
+
+  return `${formatted}%`;
+}
+
+function getThresholdGuide(parameter: string) {
+  const normalized = parameter.toLowerCase();
+
+  if (normalized.includes("wind")) {
+    return "Thresholds screen normal working, caution, and high-wind stoppage levels.";
+  }
+
+  if (normalized.includes("wave_hs")) {
+    return "Thresholds move from calm-water load-in/load-out limits to downtime checks.";
+  }
+
+  if (normalized.includes("wave_tp")) {
+    return "Period bands help screen vessel-motion sensitivity, not only wave size.";
+  }
+
+  if (normalized.includes("swell_hs")) {
+    return "Swell thresholds check access comfort and interruption risk from remote sea states.";
+  }
+
+  if (normalized.includes("swell_tp")) {
+    return "Swell-period bands flag longer-motion effects on vessels and floating assets.";
+  }
+
+  return "Thresholds are reference levels used to screen operational risk.";
+}
+
+function getMonthlyExceedanceRows(
+  monthlyExceedance: MonthlyExceedanceGroup,
+  selectedKey: MonthlyExceedanceKey,
+) {
+  return monthlyExceedance[selectedKey] ?? [];
+}
+
+function formatThresholdHeader(threshold: number, unit: string) {
+  return `>${formatNumber(threshold)} ${unit}`;
+}
+
+function getMonthlyRecommendations(metric: string) {
+  const normalized = metric.toUpperCase();
+
+  if (normalized.includes("WIND")) {
+    return [
+      "Higher wind conditions during February–June may reduce the available operating windows for precision cargo handling, particularly for oversized or heavy cargo requiring controlled lifting and positioning, implement weather monitoring during this period.",
+      "Quay cranes, mobile cranes, and floating cranes are more likely to encounter operational wind constraints during late winter and spring. Increased wind speeds can affect lifting accuracy, suspended load stability, and overall operational efficiency.",
+      "Routine Roll-on/Roll-off operations are expected to remain feasible throughout most of the year. However, elevated winds during February–June may require additional attention to vehicle movement, ramp alignment, and vessel positioning, particularly during crosswind conditions.",
+    ];
+  }
+
+  if (normalized.includes("WAVE_H")) {
+    return [
+      "The elevated upper-percentile wave heights observed during January to March (P95 up to 0.94 m) indicate an increased likelihood of wave-induced vessel motions during berthing and unberthing operations. While the recorded wave climate remains moderate, these conditions may require greater attention to vessel approach, alignment, and mooring during exposed berth operations.",
+      "Higher significant wave heights increase vessel surge, sway, and heave motions alongside the berth, which can reduce the efficiency of crane-assisted cargo handling and precision load transfer operations. The comparatively calmer conditions observed between August and October provide a larger operational envelope for weather-sensitive cargo operations.",
+      "The relatively modest annual variation in monthly maximum wave heights (approximately 0.9–1.46 m) suggests that vessel motions are likely to be governed by recurring operational sea states rather than isolated extreme wave events. Consequently, operational planning should focus on the upper-percentile wave climate (P90/P95) instead of absolute maxima.",
+    ];
+  }
+
+  if (normalized.includes("WAVE_T")) {
+    return [
+      "Elevated wave periods during the first and last quarters of the year may increase vessel response during final berthing approaches and departure manoeuvres, particularly at exposed berths. Harbour approach and tug assistance planning should therefore consider both wave height and wave period rather than wave height alone.",
+      "Longer-period wave conditions can increase vessel motions during cargo transfer operations, particularly for crane-assisted loading and unloading where suspended load control and vessel stability are critical. These effects are expected to be more pronounced during months exhibiting the highest upper-percentile wave periods.",
+      "Peak wave periods remain relatively consistent throughout the year, with P95 values ranging from 5.50 s to 7.35 s. Longer wave periods observed during January–March and November–December have a greater potential to induce low-frequency vessel motions alongside berths, particularly surge and sway, even under moderate wave heights.",
+    ];
+  }
+
+  if (normalized.includes("SWELL_H")) {
+    return [
+      "Upper-percentile swell heights remain below 0.60 m throughout the historical record, indicating limited swell penetration into the port. Consequently, swell-induced harbour agitation and long-period vessel motions are expected to have a relatively minor influence on routine berth operability.",
+      "The low historical swell climate reduces the likelihood of swell-driven vessel surge during berthing, unberthing, and pilot boarding operations. As a result, swell is not expected to represent the primary environmental constraint for routine vessel movements at the port.",
+      "The observed swell climate suggests that suspended cargo operations are unlikely to be significantly constrained by swell-induced vessel motions under normal operating conditions. Operational limitations, where encountered, are more likely to be governed by locally generated wind waves and prevailing wind conditions rather than swell alone.",
+    ];
+  }
+
+  if (normalized.includes("SWELL_T")) {
+    return [
+      "The historical swell periods remain within a short-to-moderate range throughout the year, indicating a limited potential for long-period swell-induced vessel surge and yaw alongside berths. Consequently, swell period alone is unlikely to be a primary driver of berth operability.",
+      "The seasonal increase in upper-percentile swell periods during January–March and November–December may marginally increase vessel response during berthing and while alongside; however, the observed swell periods are not indicative of energetic ocean swell conditions that would typically require additional operational restrictions.",
+      "The recorded swell periods suggest that cargo handling interruptions due solely to long-period swell are expected to be infrequent. Operational constraints are more likely to arise when moderate swell periods coincide with elevated wind waves and stronger winds.",
+    ];
+  }
+
+  if (normalized.includes("OCEAN_CURR")) {
+    return [
+      "The observed current regime is not expected to impose significant additional environmental loads during berthing or unberthing. Routine vessel movements can therefore be planned primarily with consideration of prevailing wind and wave conditions, with ocean currents acting as a secondary operational factor.",
+      "The relatively weak current climate suggests that tug assistance requirements are unlikely to vary significantly throughout the year due to current effects alone. Tug deployment should instead be determined primarily by vessel characteristics, wind conditions, and berth configuration.",
+      "Historical current speeds remain consistently low throughout the year, with upper-percentile values below 0.18 m/s. These conditions indicate that tidal and ocean currents are unlikely to significantly influence routine vessel approach, berthing, or departure manoeuvres under normal operating conditions.",
+    ];
+  }
+
+  return [];
+}
+
+function MonthlyExceedanceSection({
+  monthlyExceedance,
+  recommendations,
+}: {
+  monthlyExceedance: MonthlyExceedanceGroup;
+  recommendations?: MonthlyExceedanceRecommendations;
+}) {
+  const firstAvailableOption =
+    monthlyExceedanceOptions.find(
+      (option) =>
+        getMonthlyExceedanceRows(monthlyExceedance, option.key).length,
+    ) ?? monthlyExceedanceOptions[0];
+  const [selectedKey, setSelectedKey] = useState<MonthlyExceedanceKey>(
+    firstAvailableOption.key,
+  );
+  const selectedOption =
+    monthlyExceedanceOptions.find((option) => option.key === selectedKey) ??
+    firstAvailableOption;
+  const rows = getMonthlyExceedanceRows(monthlyExceedance, selectedOption.key);
+  const thresholdHeaders = rows[0]?.thresholds ?? [];
+  const selectedRecommendations =
+    (recommendations?.[selectedOption.key]?.length
+      ? recommendations[selectedOption.key]
+      : defaultMonthlyExceedanceRecommendations[selectedOption.key]) ?? [];
+
+  return (
+    <section className="panel-block monthly-exceedance-section">
+      <div className="panel-head">
+        <h3>Monthly Exceedance</h3>
+      </div>
+      <p className="section-clarity">
+        Monthly percentage of observations exceeding the selected operational
+        thresholds. This helps identify seasonal variations for planning
+        load-in/load-out operations.
+      </p>
+      <div className="monthly-exceedance-toolbar">
+        <label htmlFor="monthly-exceedance-parameter">Parameter</label>
+        <select
+          id="monthly-exceedance-parameter"
+          value={selectedOption.key}
+          onChange={(event) =>
+            setSelectedKey(event.target.value as MonthlyExceedanceKey)
+          }
+        >
+          {monthlyExceedanceOptions.map((option) => (
+            <option
+              key={option.key}
+              value={option.key}
+              disabled={
+                !getMonthlyExceedanceRows(monthlyExceedance, option.key).length
+              }
+            >
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="monthly-exceedance-layout">
+        {rows.length ? (
+          <div className="table-scroll monthly-exceedance-table-wrap">
+            <table className="digitized-table compact monthly-exceedance-table">
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  {thresholdHeaders.map((threshold) => (
+                    <th key={threshold.threshold}>
+                      {formatThresholdHeader(
+                        threshold.threshold,
+                        selectedOption.unit,
+                      )}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row: MonthlyExceedanceRow) => (
+                  <tr key={row.month}>
+                    <td>{row.month}</td>
+                    {row.thresholds.map((threshold) => (
+                      <td key={`${row.month}-${threshold.threshold}`}>
+                        {formatPercent(threshold.exceedance)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="empty-state">
+            No monthly exceedance rows are available for this parameter.
+          </div>
+        )}
+        <div className="recommendation-box monthly-exceedance-recommendation">
+          <RecommendationTitle>Recommendations</RecommendationTitle>
+          {selectedRecommendations.length ? (
+            <ul>
+              {selectedRecommendations.map((recommendation) => (
+                <li key={recommendation}>{recommendation}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>No recommendations are available for this parameter.</p>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function toMonthlyTrendData(metric: MetricBlock): MonthlyStat[] {
   const valuesByStat = new Map(
     metric.rows.map((row) => [row.stat, row.values] as const),
@@ -437,6 +739,7 @@ function TablePanel({
   title,
   columns,
   rows,
+  children,
 }: {
   title: string;
   columns: string[];
@@ -445,6 +748,7 @@ function TablePanel({
     key: ReactNode;
     values: Array<string | number>;
   }>;
+  children?: ReactNode;
 }) {
   return (
     <section className="panel-block">
@@ -474,6 +778,7 @@ function TablePanel({
           </tbody>
         </table>
       </div>
+      {children}
     </section>
   );
 }
@@ -620,7 +925,16 @@ function renderSite(report: SiteReport) {
             rp100: row.rp100,
             method: row.method,
           }))}
-        />
+        >
+          <div className="recommendation-box extreme-value-recommendation">
+            <RecommendationTitle>Recommendations</RecommendationTitle>
+            <ul>
+              {extremeValueRecommendations.map((recommendation) => (
+                <li key={recommendation}>{recommendation}</li>
+              ))}
+            </ul>
+          </div>
+        </TablePanel>
       ) : null}
 
       {report.monthlyStats?.length ? (
@@ -662,6 +976,18 @@ function renderSite(report: SiteReport) {
                     data={toMonthlyTrendData(metric)}
                   />
                 </div>
+                {getMonthlyRecommendations(metric.metric).length ? (
+                  <div className="recommendation-box monthly-recommendation">
+                    <RecommendationTitle>Recommendations</RecommendationTitle>
+                    <ul>
+                      {getMonthlyRecommendations(metric.metric).map(
+                        (recommendation) => (
+                          <li key={recommendation}>{recommendation}</li>
+                        ),
+                      )}
+                    </ul>
+                  </div>
+                ) : null}
               </div>
             ))}
           </div>
@@ -700,6 +1026,14 @@ function renderSite(report: SiteReport) {
                 )}
               </tbody>
             </table>
+          </div>
+          <div className="recommendation-box seasonal-recommendation">
+            <RecommendationTitle>Recommendations</RecommendationTitle>
+            <ul>
+              {seasonalRecommendations.map((recommendation) => (
+                <li key={recommendation}>{recommendation}</li>
+              ))}
+            </ul>
           </div>
         </section>
       ) : null}
@@ -746,6 +1080,9 @@ function renderSite(report: SiteReport) {
           <p className="panel-insight">
             {getOperationalWindowInsight(report.operationalWindows)}
           </p>
+          <p className="panel-insight">
+            {getOperationalWindowRiskNote(report.operationalWindows)}
+          </p>
         </section>
       ) : null}
 
@@ -764,8 +1101,11 @@ function renderSite(report: SiteReport) {
                 <div className="exceedance-card-head">
                   <strong>{getParameterDisplayName(group.parameter)}</strong>
                 </div>
-                <p className="exceedance-card-caption">
+                {/* <p className="exceedance-card-caption">
                   {getParameterMeaning(group.parameter)}
+                </p> */}
+                <p className="threshold-guide">
+                  {getThresholdGuide(group.parameter)}
                 </p>
                 <div className="threshold-strip">
                   {group.thresholds.map((threshold, index) => (
@@ -784,7 +1124,22 @@ function renderSite(report: SiteReport) {
           <p className="panel-insight">
             {getExceedanceInsight(report.exceedance)}
           </p>
+          <div className="recommendation-box exceedance-recommendation">
+            <RecommendationTitle>Recommendations</RecommendationTitle>
+            <ul>
+              {overallExceedanceRecommendations.map((recommendation) => (
+                <li key={recommendation}>{recommendation}</li>
+              ))}
+            </ul>
+          </div>
         </section>
+      ) : null}
+
+      {report.monthlyExceedance ? (
+        <MonthlyExceedanceSection
+          monthlyExceedance={report.monthlyExceedance}
+          recommendations={report.monthlyExceedanceRecommendations}
+        />
       ) : null}
     </>
   );

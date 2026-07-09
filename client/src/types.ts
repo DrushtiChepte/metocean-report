@@ -47,6 +47,27 @@ export type ExceedanceGroup = {
   thresholds: Array<{ threshold: number; exceedance: number }>;
 };
 
+export type MonthlyExceedanceRow = {
+  month: string;
+  thresholds: Array<{ threshold: number; exceedance: number }>;
+};
+
+export type MonthlyExceedanceGroup = {
+  wind?: MonthlyExceedanceRow[];
+  waveHeight?: MonthlyExceedanceRow[];
+  wavePeriod?: MonthlyExceedanceRow[];
+  swellHeight?: MonthlyExceedanceRow[];
+  swellPeriod?: MonthlyExceedanceRow[];
+};
+
+export type MonthlyExceedanceRecommendations = {
+  wind?: string[];
+  waveHeight?: string[];
+  wavePeriod?: string[];
+  swellHeight?: string[];
+  swellPeriod?: string[];
+};
+
 export type ReportBase = {
   slug: string;
   title: string;
@@ -71,6 +92,8 @@ export type SiteReport = ReportBase & {
     months: OperationalMonth[];
   };
   exceedance?: ExceedanceGroup[];
+  monthlyExceedance?: MonthlyExceedanceGroup;
+  monthlyExceedanceRecommendations?: MonthlyExceedanceRecommendations;
   sections?: Array<{ title: string; body: string }>;
 };
 
