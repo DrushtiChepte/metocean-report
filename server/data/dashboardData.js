@@ -34,7 +34,7 @@ export const dashboardData = {
       period: "1985-2000",
       date: "2026-04-01",
       summary:
-        "Site study sheet with extreme value analysis, monthly statistics, seasonal summary, operating window guidance, and exceedance probabilities.",
+        "Site study sheet covering extreme value analysis, monthly statistics, seasonal summary, operating window guidance, and exceedance probabilities.",
       highlights: [
         { label: "Wind Speed RP100", value: "12.96 m/s" },
         { label: "Wave Height RP100", value: "1.55 m" },

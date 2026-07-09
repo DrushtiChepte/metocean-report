@@ -8,6 +8,12 @@ import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import type { MapSite } from "../types";
 
+const MUSAFFAH_PORT_SLUG = "musaffah-port";
+const MUSAFFAH_PORT_CENTER: [number, number] = [24.38, 54.47];
+const DEFAULT_CENTER: [number, number] = [24.5, 54.1];
+const DEFAULT_ZOOM = 6;
+const MUSAFFAH_PORT_ZOOM = 12;
+
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: marker2x,
@@ -23,7 +29,11 @@ function FitBounds({ sites, selectedSlug }: { sites: MapSite[]; selectedSlug: st
     const coordSites = sites.filter((site) => site.coordinates);
 
     if (activeSite?.coordinates) {
-      map.setView([activeSite.coordinates.latitude, activeSite.coordinates.longitude], 9);
+      const isMusaffahPort = activeSite.slug === MUSAFFAH_PORT_SLUG;
+      map.setView(
+        [activeSite.coordinates.latitude, activeSite.coordinates.longitude],
+        isMusaffahPort ? MUSAFFAH_PORT_ZOOM : 9,
+      );
       return;
     }
 
@@ -35,7 +45,7 @@ function FitBounds({ sites, selectedSlug }: { sites: MapSite[]; selectedSlug: st
       return;
     }
 
-    map.setView([24.5, 54.1], 6);
+    map.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
   }, [map, selectedSlug, sites]);
 
   return null;
@@ -48,9 +58,14 @@ export default function HarborMap({
   mapSites: MapSite[];
   selectedSlug: string;
 }) {
+  const activeSite = mapSites.find((site) => site.slug === selectedSlug && site.coordinates);
+  const initialCenter =
+    activeSite?.slug === MUSAFFAH_PORT_SLUG ? MUSAFFAH_PORT_CENTER : DEFAULT_CENTER;
+  const initialZoom = activeSite?.slug === MUSAFFAH_PORT_SLUG ? MUSAFFAH_PORT_ZOOM : DEFAULT_ZOOM;
+
   return (
     <div className="map-shell">
-      <MapContainer className="map-canvas" center={[24.5, 54.1]} zoom={6} scrollWheelZoom={false}>
+      <MapContainer className="map-canvas" center={initialCenter} zoom={initialZoom} scrollWheelZoom={false}>
         <TileLayer
           attribution='Tiles &copy; Esri'
           url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"

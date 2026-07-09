@@ -190,20 +190,9 @@ function AuthScreen({
     <main className="auth-shell">
       <section className="auth-panel">
         <div className="auth-hero">
-          <span className="auth-kicker">Metocean Platform</span>
-          <h1>Sign in to manage project data</h1>
-          <p>
-            Use the login form to access the dashboard, route studies, site
-            reports, and metadata in one workspace.
-          </p>
-          <div className="auth-points">
-            <div>
-              <strong>Single workspace</strong>
-              <span>
-                Keep clients, projects, sites, routes, and metadata organized.
-              </span>
-            </div>
-          </div>
+          <span className="auth-kicker">YOUR METOCEAN REPORT</span>
+          <h1>Sign in to look at your metocean report </h1>
+         
         </div>
 
         <div className="auth-card">
@@ -349,19 +338,23 @@ function getParameterMeaning(parameter: string) {
   }
 
   if (normalized.includes("wave_hs")) {
-    return "Significant wave height, a key control for marine workability.";
+    return "Wave Height, a key control for marine workability.";
   }
 
   if (normalized.includes("wave_tp")) {
-    return "Peak wave period, used to understand vessel motion response.";
+    return "Wave Time Period, used to understand vessel motion response.";
   }
 
   if (normalized.includes("swell_hs")) {
-    return "Swell height from longer-range sea conditions.";
+    return "Swell Height from longer-range sea conditions.";
   }
 
   if (normalized.includes("swell_tp")) {
-    return "Swell period, useful for assessing longer-period motion effects.";
+    return "Swell Time Period, useful for assessing longer-period motion effects.";
+  }
+
+  if (normalized.includes("ocean") && normalized.includes("curr")) {
+    return "Ocean Currents, used to evaluate flow-driven operational effects.";
   }
 
   return "Probability of exceeding the selected operating thresholds.";
@@ -370,10 +363,12 @@ function getParameterMeaning(parameter: string) {
 function getParameterDisplayName(parameter: string) {
   const labels: Record<string, string> = {
     "Wind (m/s)": "Wind Speed",
-    "Wave_Hs (m)": "Wave Height",
-    "Wave_Tp (s)": "Wave Period",
-    "Swell_Hs (m)": "Swell Height",
-    "Swell_Tp (s)": "Swell Period",
+    "Wave_Hs (m)": "Wave_H(m)",
+    "Wave_Tp (s)": "Wave_T(s)",
+    "Swell_Hs (m)": "Swell_H(m)",
+    "Swell_Tp (s)": "Swell_T(s)",
+    "Ocean_curr(m/s)": "Ocean_curr(m/s)",
+    "Ocean Current": "Ocean_curr(m/s)",
   };
 
   return labels[parameter] ?? parameter;
@@ -483,6 +478,71 @@ function TablePanel({
   );
 }
 
+function ExtremeValuePanel({
+  rows,
+}: {
+  rows: Array<{
+    rowKey: string;
+    key: ReactNode;
+    units: string | number;
+    rp1: string | number;
+    rp10: string | number;
+    rp50: string | number;
+    rp100: string | number;
+    method: string | number;
+  }>;
+}) {
+  return (
+    <section className="panel-block">
+      <div className="panel-head">
+        <h3>Extreme value analysis</h3>
+      </div>
+      <div className="table-scroll">
+        <table className="digitized-table">
+          <thead>
+            <tr>
+              <th>Label</th>
+              <th>Units</th>
+              <th>RP1</th>
+              <th>RP10</th>
+              <th>RP50</th>
+              <th>RP100</th>
+              <th>Method</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.rowKey}>
+                <td>{row.key}</td>
+                <td>{formatNumber(row.units)}</td>
+                <td>{formatNumber(row.rp1)}</td>
+                <td>{formatNumber(row.rp10)}</td>
+                <td>{formatNumber(row.rp50)}</td>
+                <td>{formatNumber(row.rp100)}</td>
+                <td>{formatNumber(row.method)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="monthly-trend-note">
+        <span>
+          <strong>RP1</strong> = 1 year return period
+        </span>
+        <span>
+          <strong>RP10</strong> = 10 year return period
+        </span>
+        <span>
+          <strong>RP50</strong> = 50 year return period
+        </span>
+        <span>
+          <strong>RP100</strong> = 100 year return period
+        </span>
+      </div>
+    </section>
+  );
+}
+
 function renderSite(report: SiteReport) {
   const hideIntroPanels = report.slug === "musaffah-port";
 
@@ -530,19 +590,13 @@ function renderSite(report: SiteReport) {
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="empty-state">
-                No additional note sections were extracted.
-              </div>
-            )}
+            ) : null}
           </div>
         </section>
       ) : null}
 
       {report.extremeValueAnalysis?.length ? (
-        <TablePanel
-          title="Extreme value analysis"
-          columns={["Units", "RP1", "RP10", "RP50", "RP100", "Method"]}
+        <ExtremeValuePanel
           rows={report.extremeValueAnalysis.map((row) => ({
             rowKey: row.parameter,
             key: (
@@ -559,14 +613,12 @@ function renderSite(report: SiteReport) {
                 ) : null}
               </span>
             ),
-            values: [
-              row.units,
-              row.rp1,
-              row.rp10,
-              row.rp50,
-              row.rp100,
-              row.method,
-            ],
+            units: row.units,
+            rp1: row.rp1,
+            rp10: row.rp10,
+            rp50: row.rp50,
+            rp100: row.rp100,
+            method: row.method,
           }))}
         />
       ) : null}
@@ -800,9 +852,7 @@ function renderRoute(report: RouteReport) {
       </section>
 
       {report.extremeValueAnalysis?.length ? (
-        <TablePanel
-          title="Extreme value analysis"
-          columns={["Units", "RP1", "RP10", "RP50", "RP100", "Method"]}
+        <ExtremeValuePanel
           rows={report.extremeValueAnalysis.map((row) => ({
             rowKey: row.parameter,
             key: (
@@ -819,14 +869,12 @@ function renderRoute(report: RouteReport) {
                 ) : null}
               </span>
             ),
-            values: [
-              row.units,
-              row.rp1,
-              row.rp10,
-              row.rp50,
-              row.rp100,
-              row.method,
-            ],
+            units: row.units,
+            rp1: row.rp1,
+            rp10: row.rp10,
+            rp50: row.rp50,
+            rp100: row.rp100,
+            method: row.method,
           }))}
         />
       ) : null}
@@ -967,11 +1015,7 @@ function MusaffahSummaryCard() {
           Lat - 24.38°N, Lon - 54.47°E
         </h3>
       </div>
-      <p className="panel-note summary-lead">
-        Site study sheet with extreme value analysis, monthly statistics,
-        seasonal summary, operating window guidance, and exceedance
-        probabilities.
-      </p>
+      
       <div className="summary-highlights">
         <div className="highlight-card">
           <span>Wind Speed RP100</span>
@@ -1007,14 +1051,6 @@ function MusaffahSummaryCard() {
             <span>Date</span>
             <strong>April 1, 2026</strong>
           </div>
-        </div>
-      </section>
-      <section className="panel-block summary-inner">
-        <div className="panel-head">
-          <h3>Site details</h3>
-        </div>
-        <div className="empty-state">
-          No additional note sections were extracted.
         </div>
       </section>
     </section>

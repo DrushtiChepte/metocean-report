@@ -251,6 +251,16 @@ function SeasonalChartCard({ metric }: { metric: SeasonalMetric }) {
         notMerge
         lazyUpdate
       />
+      <div className="monthly-trend-note">
+        <span>
+          <strong>P90</strong> = 90% of the values are less than the P90
+          value
+        </span>
+        <span>
+          <strong>P95</strong> = 95% of the values are less than the P95
+          value
+        </span>
+      </div>
     </section>
   );
 }
