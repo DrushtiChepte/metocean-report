@@ -23,12 +23,26 @@ const extremeAliases: Record<string, string> = {
   DSWL: "Design Still Water Level",
 };
 
+const seasonalMetricLabels: Record<string, string> = {
+  "WIND (m/s)": "Wind Speed (m/s)",
+  "WAVE_H (m)": "Wave Height (m)",
+  "WAVE_T (s)": "Wave Period (s)",
+  "SWELL_H (m)": "Swell Height (m)",
+  "SWELL_T (s)": "Swell Period (s)",
+  "OCEAN_CURR (m/s)": "Ocean Current (m/s)",
+  "STORM_SURGE (m)": "Storm Surge (m)",
+};
+
 function formatValue(value: number) {
   if (Number.isInteger(value)) {
     return String(value);
   }
 
   return value.toFixed(value >= 10 ? 1 : 2).replace(/\.?0+$/, "");
+}
+
+function getSeasonalMetricLabel(metric: string) {
+  return seasonalMetricLabels[metric] ?? metric;
 }
 
 function getSeasonData(metric: SeasonalMetric) {
@@ -48,7 +62,7 @@ function getSeasonalOption(metric: SeasonalMetric): EChartsOption {
     animationDuration: 300,
     color: seasonalSeriesConfig.map((item) => item.color),
     title: {
-      text: `Seasonal snapshot - ${metric.metric}`,
+      text: `Seasonal snapshot - ${getSeasonalMetricLabel(metric.metric)}`,
       left: "center",
       top: 8,
       textStyle: {
@@ -239,15 +253,12 @@ function getExtremeOption(rows: ExtremeRow[]): EChartsOption {
   };
 }
 
-function SeasonalChartCard({ metric }: { metric: SeasonalMetric }) {
+export function SeasonalChartCard({ metric }: { metric: SeasonalMetric }) {
   return (
     <section className="chart-card">
-      <div className="panel-head">
-        <h3>Seasonal snapshot - {metric.metric}</h3>
-      </div>
       <ReactECharts
         option={getSeasonalOption(metric)}
-        style={{ width: "100%", height: 320 }}
+        style={{ width: "100%", height: 380 }}
         notMerge
         lazyUpdate
       />
@@ -291,13 +302,6 @@ export default function ReportCharts({
   }
 
   const charts: JSX.Element[] = [];
-
-  if (report.kind === "site" && report.seasonalStats?.length) {
-    const seasonalMetric = report.seasonalStats[0];
-    charts.push(
-      <SeasonalChartCard key="seasonal" metric={seasonalMetric} />,
-    );
-  }
 
   if (report.kind === "route" && report.extremeValueAnalysis?.length) {
     charts.push(

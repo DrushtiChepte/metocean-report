@@ -14,7 +14,7 @@ import MonthlyTrendChart, {
   type MonthlyStat,
 } from "./components/MonthlyTrendChart";
 import SidebarTree from "./components/SidebarTree";
-import ReportCharts from "./components/ReportCharts";
+import ReportCharts, { SeasonalChartCard } from "./components/ReportCharts";
 import { fetchDashboard } from "./api";
 import type {
   DashboardData,
@@ -46,6 +46,25 @@ const monthLabels = [
   "Dec",
 ];
 const seasonLabels = ["Monsoon", "Post-monsoon", "Pre-monsoon", "Winter"];
+const seasonalMetricLabels: Record<string, string> = {
+  "WIND (m/s)": "Wind Speed (m/s)",
+  "WAVE_H (m)": "Wave Height (m)",
+  "WAVE_T (s)": "Wave Period (s)",
+  "SWELL_H (m)": "Swell Height (m)",
+  "SWELL_T (s)": "Swell Period (s)",
+  "OCEAN_CURR (m/s)": "Ocean Current (m/s)",
+  "STORM_SURGE (m)": "Storm Surge (m)",
+};
+
+const monthlyMetricLabels: Record<string, string> = {
+  "WIND (m/s)": "Wind Speed (m/s)",
+  "WAVE_H (m)": "Wave Height (m)",
+  "WAVE_T (s)": "Wave Period (s)",
+  "SWELL_H (m)": "Swell Height (m)",
+  "SWELL_T (s)": "Swell Period (s)",
+  "OCEAN_CURR (m/s)": "Ocean Current (m/s)",
+  "STORM_SURGE (m)": "Storm Surge (m)",
+};
 
 const monthlyExceedanceOptions = [
   { key: "wind", label: "Wind Speed", unit: "m/s" },
@@ -151,6 +170,14 @@ function formatReportLocation(
   const longitude = formatCoordinate(report.coordinates.longitude, "E", "W");
 
   return `${report.title} (${latitude},${longitude})`;
+}
+
+function getSeasonalMetricLabel(metric: string) {
+  return seasonalMetricLabels[metric] ?? metric;
+}
+
+function getMonthlyMetricLabel(metric: string) {
+  return monthlyMetricLabels[metric] ?? metric;
 }
 
 function StatusDot({ state }: { state: "actual" | "dummy" }) {
@@ -454,13 +481,21 @@ function getParameterMeaning(parameter: string) {
 
 function getParameterDisplayName(parameter: string) {
   const labels: Record<string, string> = {
-    "Wind (m/s)": "Wind Speed",
-    "Wave_Hs (m)": "Wave_H(m)",
-    "Wave_Tp (s)": "Wave_T(s)",
-    "Swell_Hs (m)": "Swell_H(m)",
-    "Swell_Tp (s)": "Swell_T(s)",
-    "Ocean_curr(m/s)": "Ocean_curr(m/s)",
-    "Ocean Current": "Ocean_curr(m/s)",
+    "Wind (m/s)": "Wind Speed (m/s)",
+    "WIND (m/s)": "Wind Speed (m/s)",
+    "Wave_Hs (m)": "Wave Height (m)",
+    "WAVE_H (m)": "Wave Height (m)",
+    "Wave_Tp (s)": "Wave Period (s)",
+    "WAVE_T (s)": "Wave Period (s)",
+    "Swell_Hs (m)": "Swell Height (m)",
+    "SWELL_H (m)": "Swell Height (m)",
+    "Swell_Tp (s)": "Swell Period (s)",
+    "SWELL_T (s)": "Swell Period (s)",
+    "Ocean_curr(m/s)": "Ocean Current (m/s)",
+    "OCEAN_CURR (m/s)": "Ocean Current (m/s)",
+    "Ocean Current": "Ocean Current (m/s)",
+    "Storm Surge (m)": "Storm Surge (m)",
+    "STORM_SURGE (m)": "Storm Surge (m)",
   };
 
   return labels[parameter] ?? parameter;
@@ -943,7 +978,7 @@ function renderSite(report: SiteReport) {
           <div className="monthly-stack">
             {report.monthlyStats.map((metric) => (
               <div key={metric.metric} className="monthly-card">
-                <h4>{metric.metric}</h4>
+                <h4>{getMonthlyMetricLabel(metric.metric)}</h4>
                 <div className="table-scroll">
                   <table className="digitized-table compact">
                     <thead>
@@ -970,7 +1005,7 @@ function renderSite(report: SiteReport) {
                 </div>
                 <div className="monthly-card-chart">
                   <MonthlyTrendChart
-                    title={`Monthly Trend — ${metric.metric}`}
+                    title={`Monthly Trend — ${getMonthlyMetricLabel(metric.metric)}`}
                     data={toMonthlyTrendData(metric)}
                   />
                 </div>
@@ -1012,7 +1047,7 @@ function renderSite(report: SiteReport) {
                 {report.seasonalStats.flatMap((metric) =>
                   metric.rows.map((row) => (
                     <tr key={`${metric.metric}-${row.stat}`}>
-                      <td>{metric.metric}</td>
+                      <td>{getSeasonalMetricLabel(metric.metric)}</td>
                       <td>{row.stat}</td>
                       {row.values.map((value, index) => (
                         <td key={`${metric.metric}-${row.stat}-${index}`}>
@@ -1024,6 +1059,11 @@ function renderSite(report: SiteReport) {
                 )}
               </tbody>
             </table>
+          </div>
+          <div className="charts-grid seasonal-snapshot-grid">
+            {report.seasonalStats.map((metric) => (
+              <SeasonalChartCard key={metric.metric} metric={metric} />
+            ))}
           </div>
           <div className="recommendation-box seasonal-recommendation">
             <RecommendationTitle>Recommendations</RecommendationTitle>

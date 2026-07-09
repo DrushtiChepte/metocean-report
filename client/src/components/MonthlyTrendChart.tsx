@@ -18,12 +18,21 @@ const monthlyChartMeta: Record<
   { yAxisName: string; yAxisUnit: string }
 > = {
   "WIND (m/s)": { yAxisName: "Wind Speed (m/s)", yAxisUnit: "m/s" },
+  "Wind Speed (m/s)": { yAxisName: "Wind Speed (m/s)", yAxisUnit: "m/s" },
   "WAVE_H (m)": { yAxisName: "Wave Height (m)", yAxisUnit: "m" },
+  "Wave Height (m)": { yAxisName: "Wave Height (m)", yAxisUnit: "m" },
   "WAVE_T (s)": { yAxisName: "Wave Period (s)", yAxisUnit: "s" },
+  "Wave Period (s)": { yAxisName: "Wave Period (s)", yAxisUnit: "s" },
   "SWELL_H (m)": { yAxisName: "Swell Height (m)", yAxisUnit: "m" },
+  "Swell Height (m)": { yAxisName: "Swell Height (m)", yAxisUnit: "m" },
   "SWELL_T (s)": { yAxisName: "Swell Period (s)", yAxisUnit: "s" },
+  "Swell Period (s)": { yAxisName: "Swell Period (s)", yAxisUnit: "s" },
   "OCEAN_CURR (m/s)": {
-    yAxisName: "Current Speed (m/s)",
+    yAxisName: "Ocean Current (m/s)",
+    yAxisUnit: "m/s",
+  },
+  "Ocean Current (m/s)": {
+    yAxisName: "Ocean Current (m/s)",
     yAxisUnit: "m/s",
   },
 };
