@@ -7,22 +7,40 @@ function FolderRow({
   label,
   open,
   onToggle,
-  depth = 0,
+  icon,
+  section = false,
 }: {
   label: string;
   open: boolean;
   onToggle: () => void;
-  depth?: number;
+  icon?: string;
+  section?: boolean;
 }) {
   return (
     <button
       type="button"
-      className="sidebar-tree-row sidebar-tree-folder"
+      className={`sidebar-tree-row sidebar-tree-folder ${section ? "section" : "project"}`}
       onClick={onToggle}
       aria-expanded={open}
-      style={{ paddingLeft: `${8 + depth * 12}px` }}
     >
-      <span className={`project-caret ${open ? "open" : ""}`} aria-hidden="true" />
+      <span
+        className={`project-caret ${open ? "open" : ""}`}
+        aria-hidden="true"
+      />
+      {icon ? (
+        icon.endsWith(".svg") ? (
+          <img
+            src={icon}
+            alt=""
+            aria-hidden="true"
+            className="sidebar-section-icon image"
+          />
+        ) : (
+          <span className="sidebar-section-icon" aria-hidden="true">
+            {icon}
+          </span>
+        )
+      ) : null}
       <span className="project-name">{label}</span>
     </button>
   );
@@ -33,20 +51,17 @@ function LeafRow({
   selectedSlug,
   onSelect,
   label,
-  depth = 0,
 }: {
   report: DashboardReport;
   selectedSlug: string;
   onSelect: (slug: string) => void;
   label?: string;
-  depth?: number;
 }) {
   return (
     <button
       type="button"
       className={`sidebar-tree-row sidebar-tree-leaf ${report.slug === selectedSlug ? "active" : ""}`}
       onClick={() => onSelect(report.slug)}
-      style={{ paddingLeft: `${8 + depth * 12}px` }}
     >
       <span className={`location-status ${report.dataState}`} />
       <span className="location-name">{label ?? report.title}</span>
@@ -110,78 +125,70 @@ export default function SidebarTree({
 
       <div className="sidebar-tree">
         <FolderRow
-          label="Projects"
-          open={clientOpen}
-          onToggle={() => setClientOpen((open) => !open)}
-          depth={0}
+          label="Project 1"
+          open={projectOpen}
+          onToggle={() => {
+            setClientOpen(true);
+            setProjectOpen((open) => !open);
+          }}
         />
-        {clientOpen ? (
+        {projectOpen ? (
           <>
             <FolderRow
-              label="Project 1"
-              open={projectOpen}
-              onToggle={() => setProjectOpen((open) => !open)}
-              depth={1}
+              label="Sites"
+              open={sitesOpen}
+              onToggle={() => setSitesOpen((open) => !open)}
+              icon="📍"
+              section
             />
-            {projectOpen ? (
-              <>
-                <FolderRow
-                  label="Sites"
-                  open={sitesOpen}
-                  onToggle={() => setSitesOpen((open) => !open)}
-                  depth={2}
-                />
-                {sitesOpen
-                  ? siteReports.map((report) => (
-                      <LeafRow
-                        key={report.slug}
-                        report={report}
-                        selectedSlug={selectedSlug}
-                        onSelect={setSelectedSlug}
-                        depth={3}
-                      />
-                    ))
-                  : null}
+            {sitesOpen
+              ? siteReports.map((report) => (
+                  <LeafRow
+                    key={report.slug}
+                    report={report}
+                    selectedSlug={selectedSlug}
+                    onSelect={setSelectedSlug}
+                  />
+                ))
+              : null}
 
-                <FolderRow
-                  label="Routes"
-                  open={routesOpen}
-                  onToggle={() => setRoutesOpen((open) => !open)}
-                  depth={2}
-                />
-                {routesOpen
-                  ? routeReports.map((report) => (
-                      <LeafRow
-                        key={report.slug}
-                        report={report}
-                        selectedSlug={selectedSlug}
-                        onSelect={setSelectedSlug}
-                        label={routeLabel(report)}
-                        depth={3}
-                      />
-                    ))
-                  : null}
+            <FolderRow
+              label="Routes"
+              open={routesOpen}
+              onToggle={() => setRoutesOpen((open) => !open)}
+              icon="/route.svg"
+              section
+            />
+            {routesOpen
+              ? routeReports.map((report) => (
+                  <LeafRow
+                    key={report.slug}
+                    report={report}
+                    selectedSlug={selectedSlug}
+                    onSelect={setSelectedSlug}
+                    label={routeLabel(report)}
+                  />
+                ))
+              : null}
 
-                <FolderRow
-                  label="Metadata"
-                  open={metadataOpen}
-                  onToggle={() => setMetadataOpen((open) => !open)}
-                  depth={2}
-                />
-                {metadataOpen
-                  ? metadataReports.map((report) => (
-                      <LeafRow
-                        key={report.slug}
-                        report={report}
-                        selectedSlug={selectedSlug}
-                        onSelect={setSelectedSlug}
-                        label="Metadata"
-                        depth={3}
-                      />
-                    ))
-                  : null}
-              </>
-            ) : null}
+            <FolderRow
+              label="Metadata"
+              open={metadataOpen}
+              onToggle={() => setMetadataOpen((open) => !open)}
+              icon="📄"
+              section
+            />
+            {metadataOpen
+              ? metadataReports.map((report) => (
+                  <LeafRow
+                    key={report.slug}
+                    report={report}
+                    selectedSlug={selectedSlug}
+                    onSelect={setSelectedSlug}
+                    label="Metadata"
+                  />
+                ))
+              : null}
           </>
         ) : null}
 

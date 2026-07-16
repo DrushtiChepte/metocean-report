@@ -1,5 +1,6 @@
-import { useMemo } from "react";
-import ReactECharts from "echarts-for-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Plot from "react-plotly.js";
+import type { Config, Data, Layout } from "plotly.js";
 
 export type RoseClass = {
   label: string;
@@ -46,24 +47,107 @@ const directionLabels: Record<number, string> = {
   300: "WNW",
   330: "NNW",
 };
+const plotHeight = 480;
+const plotMargin = {
+  l: 36,
+  r: 36,
+  t: 48,
+  b: 88,
+};
+const polarDomain = {
+  x: [0, 1] as [number, number],
+  y: [0.06, 1] as [number, number],
+};
 
 function normalizeAngle(value: number) {
   return ((value % 360) + 360) % 360;
 }
 
-function buildRoseInsight({
+function toDisplayPrecision(value: number) {
+  return Number(value.toFixed(1));
+}
+
+function formatRadialTick(value: number, suffix: string) {
+  const rounded = toDisplayPrecision(value);
+  const label = Number.isInteger(rounded)
+    ? rounded.toFixed(0)
+    : rounded.toFixed(1);
+
+  return `${label}${suffix}`;
+}
+
+function getRadialTickStep(maxValue: number) {
+  if (maxValue <= 25) return 5;
+  if (maxValue <= 50) return 10;
+
+  const roughStep = maxValue / 4;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
+  const normalized = roughStep / magnitude;
+
+  if (normalized <= 1) return magnitude;
+  if (normalized <= 2) return 2 * magnitude;
+  if (normalized <= 5) return 5 * magnitude;
+  return 10 * magnitude;
+}
+
+function buildRadialTicks(maxValue: number, suffix: string) {
+  const axisMax = maxValue > 0 ? maxValue : 1;
+  const displayedMax = toDisplayPrecision(axisMax);
+  const step = getRadialTickStep(displayedMax);
+  const tickvals: number[] = [];
+
+  for (let tick = 0; tick < displayedMax; tick += step) {
+    tickvals.push(Number(tick.toFixed(6)));
+  }
+
+  if (!tickvals.some((tick) => Math.abs(tick - axisMax) < 0.000001)) {
+    tickvals.push(axisMax);
+  }
+
+  return {
+    max: axisMax,
+    tickvals,
+    ticktext: tickvals.map((tick) => formatRadialTick(tick, suffix)),
+  };
+}
+
+function getReadableAxisRotation(direction: number) {
+  const axisAngle = direction - 90;
+
+  if (axisAngle > 90 || axisAngle < -90) {
+    return axisAngle + 180;
+  }
+
+  return axisAngle;
+}
+
+function getOverlayGeometry(width: number, height: number) {
+  const plotWidth = Math.max(width - plotMargin.l - plotMargin.r, 0);
+  const plotInnerHeight = Math.max(height - plotMargin.t - plotMargin.b, 0);
+  const domainWidth = plotWidth * (polarDomain.x[1] - polarDomain.x[0]);
+  const domainHeight = plotInnerHeight * (polarDomain.y[1] - polarDomain.y[0]);
+  const left = plotMargin.l + plotWidth * polarDomain.x[0];
+  const top = plotMargin.t + plotInnerHeight * (1 - polarDomain.y[1]);
+  const radius = Math.min(domainWidth, domainHeight) / 2;
+
+  return {
+    centerX: left + domainWidth / 2,
+    centerY: top + domainHeight / 2,
+    radius,
+  };
+}
+
+function buildRoseBins({
   rows,
   classes,
   sectors,
 }: Required<Pick<RoseChartProps, "rows" | "classes" | "sectors">>) {
-  if (!rows.length || !classes.length) {
-    return "";
-  }
-
   const sectorSize = sectors.length > 1 ? sectors[1] - sectors[0] : 30;
-  const totalCount = rows.length;
-  const sectorCounts = sectors.map(() => 0);
-  const classCounts = classes.map(() => 0);
+  const bins = sectors.map((direction) => ({
+    direction,
+    total: 0,
+    classCounts: classes.map(() => 0),
+  }));
 
   for (const row of rows) {
     const direction = normalizeAngle(row.direction);
@@ -75,9 +159,28 @@ function buildRoseInsight({
     const resolvedClassIndex =
       classIndex >= 0 ? classIndex : classes.length - 1;
 
-    sectorCounts[sectorIndex] += 1;
-    classCounts[resolvedClassIndex] += 1;
+    bins[sectorIndex].total += 1;
+    bins[sectorIndex].classCounts[resolvedClassIndex] += 1;
   }
+
+  return { bins, sectorSize };
+}
+
+function buildRoseInsight({
+  rows,
+  classes,
+  sectors,
+}: Required<Pick<RoseChartProps, "rows" | "classes" | "sectors">>) {
+  if (!rows.length || !classes.length) {
+    return "";
+  }
+
+  const { bins } = buildRoseBins({ rows, classes, sectors });
+  const totalCount = rows.length;
+  const sectorCounts = bins.map((bin) => bin.total);
+  const classCounts = classes.map((_, classIndex) =>
+    bins.reduce((sum, bin) => sum + bin.classCounts[classIndex], 0),
+  );
 
   const dominantSectorIndex = sectorCounts.reduce(
     (bestIndex, count, index) =>
@@ -98,7 +201,7 @@ function buildRoseInsight({
   return `Most frequent direction: ${directionLabel} (${directionShare.toFixed(1)}% of records). Most common band: ${classes[dominantClassIndex].label} (${classShare.toFixed(1)}% of records).`;
 }
 
-function buildRoseOptions({
+function buildRoseFigure({
   title,
   rows,
   classes,
@@ -111,174 +214,233 @@ function buildRoseOptions({
     "title" | "rows" | "classes" | "sectors" | "stackName" | "valueMode"
   >
 >) {
-  const sectorSize = sectors.length > 1 ? sectors[1] - sectors[0] : 30;
   const totalCount = rows.length || 1;
-  const bins = sectors.map((direction) => ({
-    direction,
-    total: 0,
-    classCounts: classes.map(() => 0),
-  }));
+  const { bins, sectorSize } = buildRoseBins({ rows, classes, sectors });
+  const radialTotals = bins.map((bin) =>
+    valueMode === "percent" ? (bin.total / totalCount) * 100 : bin.total,
+  );
+  const emptiestBinIndex = radialTotals.reduce(
+    (bestIndex, total, index) =>
+      total < radialTotals[bestIndex] ? index : bestIndex,
+    0,
+  );
+  const labelDirection = sectors[emptiestBinIndex] ?? 0;
+  const radialScale = buildRadialTicks(
+    Math.max(...radialTotals, 0),
+    valueMode === "percent" ? "%" : "",
+  );
 
-  for (const row of rows) {
-    const direction = normalizeAngle(row.direction);
-    const binIndex =
-      Math.floor((direction + sectorSize / 2) / sectorSize) % sectors.length;
-    const classIndex = classes.findIndex(
-      (roseClass) => row.value >= roseClass.min && row.value < roseClass.max,
-    );
-    const resolvedClassIndex =
-      classIndex >= 0 ? classIndex : classes.length - 1;
-
-    bins[binIndex].total += 1;
-    bins[binIndex].classCounts[resolvedClassIndex] += 1;
-  }
-
-  const series = classes.map((roseClass, classIndex) => ({
+  const data: Data[] = classes.map((roseClass, classIndex) => ({
     name: roseClass.label,
-    type: "bar" as const,
-    coordinateSystem: "polar" as const,
-    stack: stackName,
-    roundCap: true,
-    data: displayDirectionSlots.map((direction) => {
+    type: "barpolar",
+    theta: displayDirectionSlots,
+    width: displayDirectionSlots.map(() => sectorSize),
+    r: displayDirectionSlots.map((direction) => {
       const binIndex = sectors.indexOf(direction);
-      if (binIndex < 0) return null;
+      if (binIndex < 0) return 0;
+
       const count = bins[binIndex].classCounts[classIndex];
       return valueMode === "percent" ? (count / totalCount) * 100 : count;
     }),
-    itemStyle: {
+    marker: {
       color: roseClass.color,
-      borderColor: "#ffffff",
-      borderWidth: 1,
+      line: {
+        color: "#ffffff",
+        width: 1,
+      },
     },
-    emphasis: {
-      focus: "series" as const,
-    },
+    customdata: displayDirectionSlots.map((direction) => {
+      const binIndex = sectors.indexOf(direction);
+      const count = binIndex >= 0 ? bins[binIndex].classCounts[classIndex] : 0;
+      const percentage = (count / totalCount) * 100;
+
+      return [
+        directionLabels[direction] || `${direction} deg`,
+        direction,
+        roseClass.label,
+        percentage,
+        count,
+      ];
+    }),
+    hovertemplate:
+      "<b>%{customdata[0]} (%{customdata[1]}&deg;)</b><br>" +
+      "Band: <b>%{customdata[2]}</b><br>" +
+      "Percentage: <b>%{customdata[3]:.2f}%</b><br>" +
+      "Count: <b>%{customdata[4]:,}</b>" +
+      "<extra></extra>",
   }));
 
-  return {
+  const layout: Partial<Layout> = {
     title: {
       text: title,
-      left: "left",
-      top: 4,
-      textStyle: {
+      x: 0,
+      xanchor: "left",
+      y: 0.98,
+      yanchor: "top",
+      font: {
         color: "#0f172a",
-        fontSize: 16,
-        fontWeight: 700,
+        size: 16,
       },
     },
+    barmode: "stack",
+    autosize: true,
+    margin: {
+      ...plotMargin,
+    },
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(0,0,0,0)",
+    font: {
+      family: "Inter, ui-sans-serif, system-ui, sans-serif",
+      color: "#0f172a",
+    },
+    showlegend: true,
     legend: {
-      show: true,
-      left: "center",
-      bottom: 10,
-      orient: "horizontal",
-      textStyle: {
+      orientation: "h",
+      x: 0.5,
+      xanchor: "center",
+      y: -0.12,
+      yanchor: "top",
+      font: {
         color: "#374151",
+        size: 12,
       },
     },
-    tooltip: {
-      trigger: "item",
-      backgroundColor: "rgba(255,255,255,0.98)",
-      borderColor: "rgba(15,23,42,0.12)",
-      textStyle: {
+    hoverlabel: {
+      bgcolor: "rgba(255,255,255,0.98)",
+      bordercolor: "rgba(15,23,42,0.12)",
+      font: {
         color: "#0f172a",
-      },
-      formatter(params: {
-        seriesName: string;
-        dataIndex: number;
-        value: number | null;
-      }) {
-        const direction = displayDirectionSlots[params.dataIndex];
-        const label = directionLabels[direction] || `${direction}°`;
-        const binIndex = sectors.indexOf(direction);
-
-        if (params.value == null || binIndex < 0) {
-          return "";
-        }
-
-        const classIdx = classes.findIndex(
-          (c) => c.label === params.seriesName,
-        );
-        const count = classIdx >= 0 ? bins[binIndex].classCounts[classIdx] : 0;
-        const formattedValue =
-          valueMode === "percent"
-            ? (params.value as number).toFixed(2) + "%"
-            : Math.round(params.value as number).toLocaleString();
-
-        const lines = [
-          `<div style="margin-bottom: 4px;"><strong>${label} (${direction}°)</strong></div>`,
-          `<div style="margin-bottom: 2px;"><strong style="color: ${classes[classIdx]?.color || "#000"}">${params.seriesName}</strong></div>`,
-          `<div>${valueMode === "percent" ? "Percentage" : "Count"}: <strong>${formattedValue}</strong></div>`,
-        ];
-        if (valueMode === "percent") {
-          lines.push(
-            `<div style="margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(0,0,0,0.1);">Count: <strong>${count.toLocaleString()}</strong></div>`,
-          );
-        }
-        return lines.join("");
       },
     },
     polar: {
-      radius: "72%",
-    },
-    angleAxis: {
-      type: "category",
-      data: displayDirectionSlots,
-      startAngle: 90,
-      clockwise: true,
-      boundaryGap: false,
-      axisLabel: {
-        interval: 0,
-        formatter: (value: string | number) => {
-          const direction = Number(value);
-          return directionLabels[direction] || `${direction}°`;
-        },
+      domain: {
+        ...polarDomain,
       },
-      axisLine: {
-        show: true,
-        lineStyle: {
-          color: "rgba(15,23,42,0.25)",
-          width: 1,
-        },
-      },
-      splitLine: {
-        show: true,
-        lineStyle: {
-          color: "rgba(15,23,42,0.12)",
-          width: 1,
-          type: "solid",
-        },
-      },
-    },
-    radiusAxis: {
-      min: 0,
-      max: Math.max(
-        ...bins.map((bin) =>
-          valueMode === "percent" ? (bin.total / totalCount) * 100 : bin.total,
+      bgcolor: "rgba(0,0,0,0)",
+      angularaxis: {
+        direction: "clockwise",
+        rotation: 90,
+        tickmode: "array",
+        tickvals: displayDirectionSlots,
+        ticktext: displayDirectionSlots.map(
+          (direction) => directionLabels[direction] || `${direction} deg`,
         ),
-      ),
-      axisLabel: {
-        show: true,
-        margin: 10,
-        color: "#334155",
-        backgroundColor: "rgba(255, 255, 255, 0.9)",
-        borderColor: "rgba(148, 163, 184, 0.35)",
-        borderRadius: 4,
-        borderWidth: 1,
-        padding: [2, 4],
-        z: 10,
-        formatter: (value: number) =>
-          valueMode === "percent"
-            ? value.toFixed(1) + "%"
-            : value.toLocaleString(),
-      },
-      splitLine: {
-        lineStyle: {
-          color: "rgba(15,23,42,0.08)",
+        tickfont: {
+          color: "#334155",
+          size: 12,
         },
+        linecolor: "rgba(15,23,42,0.25)",
+        linewidth: 1,
+        gridcolor: "rgba(15,23,42,0.12)",
+        gridwidth: 0.8,
+      },
+      radialaxis: {
+        range: [0, radialScale.max],
+        angle: 0,
+        tickmode: "array",
+        tickvals: radialScale.tickvals,
+        showticklabels: false,
+        ticks: "",
+        tickfont: {
+          color: "#334155",
+          size: 12,
+        },
+        showline: false,
+        gridcolor: "rgba(15,23,42,0.08)",
+        gridwidth: 1,
+        zeroline: false,
       },
     },
-    series,
   };
+
+  const config: Partial<Config> = {
+    displaylogo: false,
+    responsive: true,
+    displayModeBar: false,
+    toImageButtonOptions: {
+      format: "png",
+      scale: 2,
+    },
+  };
+
+  return {
+    data,
+    layout,
+    config,
+    radialLabels: {
+      axisMax: radialScale.max,
+      direction: labelDirection,
+      tickvals: radialScale.tickvals,
+      ticktext: radialScale.ticktext,
+    },
+  };
+}
+
+function CustomRadialLabels({
+  axisMax,
+  direction,
+  tickvals,
+  ticktext,
+  width,
+  height,
+}: {
+  axisMax: number;
+  direction: number;
+  tickvals: number[];
+  ticktext: string[];
+  width: number;
+  height: number;
+}) {
+  if (width <= 0 || height <= 0 || axisMax <= 0) {
+    return null;
+  }
+
+  const { centerX, centerY, radius } = getOverlayGeometry(width, height);
+  const directionRadians = (direction * Math.PI) / 180;
+  const axisX = Math.sin(directionRadians);
+  const axisY = -Math.cos(directionRadians);
+  const rotation = getReadableAxisRotation(direction);
+
+  return (
+    <svg
+      aria-hidden="true"
+      className="rose-radial-label-overlay"
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      width={width}
+    >
+      {tickvals.map((tickValue, index) => {
+        const distance = (tickValue / axisMax) * (radius - 12);
+        const x = centerX + axisX * distance;
+        const y = centerY + axisY * distance;
+
+        return (
+          <g
+            key={`${tickValue}-${ticktext[index]}`}
+            transform={`translate(${x} ${y})`}
+          >
+            <line
+              x1={-6}
+              x2={6}
+              y1={0}
+              y2={0}
+              transform={`rotate(${rotation + 90})`}
+            />
+            <text
+              className="rose-radial-label-text"
+              dominantBaseline="middle"
+              textAnchor="end"
+              x={-10}
+              y={0}
+              transform={`rotate(${rotation + 90})`}
+            >
+              {ticktext[index]}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
 }
 
 export default function RoseChart({
@@ -293,9 +455,11 @@ export default function RoseChart({
   recommendations,
   valueMode = "percent",
 }: RoseChartProps) {
-  const option = useMemo(
+  const chartRef = useRef<HTMLDivElement | null>(null);
+  const [chartSize, setChartSize] = useState({ width: 0, height: plotHeight });
+  const figure = useMemo(
     () =>
-      buildRoseOptions({
+      buildRoseFigure({
         title,
         rows,
         classes,
@@ -315,14 +479,48 @@ export default function RoseChart({
     [rows, classes, sectors],
   );
 
+  useEffect(() => {
+    const element = chartRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const updateSize = () => {
+      const rect = element.getBoundingClientRect();
+      setChartSize({
+        width: rect.width,
+        height: rect.height || plotHeight,
+      });
+    };
+
+    updateSize();
+
+    const resizeObserver = new ResizeObserver(updateSize);
+    resizeObserver.observe(element);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
+
   return (
     <section className={`chart-card ${cardClassName ?? ""}`.trim()}>
-      <div className="wind-rose-layout">
-        <ReactECharts
-          option={option}
-          style={{ height: 480, width: "100%" }}
-          notMerge
-          lazyUpdate
+      <div className="wind-rose-layout" ref={chartRef}>
+        <Plot
+          data={figure.data}
+          layout={figure.layout}
+          config={figure.config}
+          style={{ height: plotHeight, width: "100%" }}
+          useResizeHandler
+        />
+        <CustomRadialLabels
+          axisMax={figure.radialLabels.axisMax}
+          direction={figure.radialLabels.direction}
+          height={chartSize.height}
+          ticktext={figure.radialLabels.ticktext}
+          tickvals={figure.radialLabels.tickvals}
+          width={chartSize.width}
         />
       </div>
       {dataPeriod ? (

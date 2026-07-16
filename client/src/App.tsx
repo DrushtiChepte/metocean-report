@@ -1353,7 +1353,9 @@ function renderPrintableReport(
   if (report.kind === "site") {
     return (
       <>
-        {report.slug === "musaffah-port" ? <MusaffahSummaryCard /> : null}
+        {report.slug === "musaffah-port" ? (
+          <MusaffahSummaryCard report={report} />
+        ) : null}
         <ReportCharts report={report} />
         <ReportShell
           title={report.title}
@@ -1399,7 +1401,88 @@ function renderPrintableReport(
   );
 }
 
-function MusaffahSummaryCard() {
+function getSummaryIcon(label: string) {
+  const normalized = label.toLowerCase();
+
+  if (normalized.includes("wind")) return "W";
+  if (normalized.includes("wave")) return "~";
+  if (normalized.includes("twl")) return "T";
+  if (normalized.includes("dswl")) return "D";
+  return "M";
+}
+
+function formatReportDateShort(value?: string) {
+  if (!value) {
+    return "Not provided";
+  }
+
+  return new Date(value).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function MusaffahSummaryCard({ report }: { report: SiteReport }) {
+  const latitude = report.coordinates?.latitude;
+  const longitude = report.coordinates?.longitude;
+
+  return (
+    <section className="panel-block summary-card">
+      <div className="summary-header">
+        <div className="summary-title-group">
+          <div>
+            <h2>{report.title}</h2>
+            <p>Metocean Summary (Design Values - RP100)</p>
+          </div>
+        </div>
+        {latitude != null && longitude != null ? (
+          <div className="summary-coordinate-badge">
+            <span aria-hidden="true">LOC</span>
+            <strong>
+              {latitude.toFixed(2)}
+              &deg; N, {longitude.toFixed(2)}
+              &deg; E
+            </strong>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="summary-highlights">
+        {report.highlights.map((item) => {
+          const [value, unit = ""] = item.value.split(" ");
+
+          return (
+            <div key={item.label} className="summary-kpi">
+              <div className="summary-kpi-copy">
+                <span>{item.label}</span>
+                <strong>
+                  {value}
+                  {unit ? <small>{unit}</small> : null}
+                </strong>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="summary-meta-row">
+        <div className="summary-meta-item">
+          <div>
+            <span>Study Period</span>
+            <strong>{report.period ?? "Not provided"}</strong>
+          </div>
+        </div>
+        <div className="summary-meta-item">
+          <div>
+            <span>Report Date</span>
+            <strong>{formatReportDateShort(report.date)}</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+
   return (
     <section className="panel-block summary-card">
       <div className="panel-head">
@@ -1678,7 +1761,7 @@ export default function App() {
               </div>
             ) : null}
             {selectedReport?.slug === "musaffah-port" ? (
-              <MusaffahSummaryCard />
+              <MusaffahSummaryCard report={selectedReport as SiteReport} />
             ) : null}
             <div className="report-area">
               {loading && !dashboard ? (

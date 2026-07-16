@@ -1,4 +1,5 @@
 import ReactECharts from "echarts-for-react";
+import type React from "react";
 import type { EChartsOption } from "echarts";
 import type { MetadataReport, RouteReport, SiteReport } from "../types";
 
@@ -264,12 +265,10 @@ export function SeasonalChartCard({ metric }: { metric: SeasonalMetric }) {
       />
       <div className="monthly-trend-note">
         <span>
-          <strong>P90</strong> = 90% of the values are less than the P90
-          value
+          <strong>P90</strong> = 90% of the values are less than the P90 value
         </span>
         <span>
-          <strong>P95</strong> = 95% of the values are less than the P95
-          value
+          <strong>P95</strong> = 95% of the values are less than the P95 value
         </span>
       </div>
     </section>
@@ -301,7 +300,7 @@ export default function ReportCharts({
     return null;
   }
 
-  const charts: JSX.Element[] = [];
+  const charts: React.ReactElement[] = [];
 
   if (report.kind === "route" && report.extremeValueAnalysis?.length) {
     charts.push(

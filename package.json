@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@prisma/client": "^7.8.0",
+    "@types/react-plotly.js": "^2.6.4",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "echarts": "^6.1.0",
@@ -20,10 +21,12 @@
     "express": "^4.21.2",
     "leaflet": "^1.9.4",
     "mongoose": "^8.10.1",
+    "plotly.js-dist-min": "^3.7.0",
     "prisma": "^7.8.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-leaflet": "^5.0.0"
+    "react-leaflet": "^5.0.0",
+    "react-plotly.js": "^4.0.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
