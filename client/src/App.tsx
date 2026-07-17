@@ -1089,7 +1089,7 @@ function OverallExceedanceSection({
         ))}
       </div>
       <p className="panel-insight">{getExceedanceInsight(groups)}</p>
-      {showRecommendations ? (
+      {/* {showRecommendations ? (
         <div className="recommendation-box exceedance-recommendation">
           <RecommendationTitle>Recommendations</RecommendationTitle>
           <ul>
@@ -1098,7 +1098,7 @@ function OverallExceedanceSection({
             ))}
           </ul>
         </div>
-      ) : null}
+      ) : null} */}
     </section>
   );
 }
