@@ -63,7 +63,7 @@ function getSeasonalOption(metric: SeasonalMetric): EChartsOption {
     animationDuration: 300,
     color: seasonalSeriesConfig.map((item) => item.color),
     title: {
-      text: `Seasonal snapshot - ${getSeasonalMetricLabel(metric.metric)}`,
+      text: "Seasonal Snapshot",
       left: "center",
       top: 8,
       textStyle: {

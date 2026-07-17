@@ -10,6 +10,7 @@ export type MonthlyStat = {
 
 type MonthlyTrendChartProps = {
   title: string;
+  metricLabel?: string;
   data: MonthlyStat[];
 };
 
@@ -75,10 +76,12 @@ function getYAxisBounds(data: MonthlyStat[]) {
 
 export default function MonthlyTrendChart({
   title,
+  metricLabel,
   data,
 }: MonthlyTrendChartProps) {
   const { min, max } = getYAxisBounds(data);
   const chartMeta =
+    (metricLabel ? monthlyChartMeta[metricLabel] : undefined) ??
     Object.entries(monthlyChartMeta).find(([metric]) => title.includes(metric))?.[1] ??
     monthlyChartMeta["WIND (m/s)"];
 

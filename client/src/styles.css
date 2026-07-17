@@ -864,21 +864,23 @@ select {
 
 .chart-insight {
   margin: 10px 0 0;
-  padding: 11px 13px;
+  padding: 12px 14px;
   border-radius: var(--radius-md);
-  background: rgba(14, 116, 144, 0.08);
-  border: 1px solid rgba(14, 116, 144, 0.14);
-  color: #164e63;
+  background: rgba(14, 116, 144, 0.075);
+  border: 0;
+  border-left: 3px solid rgba(14, 116, 144, 0.42);
+  color: #155e75;
   font-size: 0.86rem;
   line-height: 1.45;
 }
 
 .recommendation-box {
   margin: 12px 0 0;
-  padding: 13px 15px;
+  padding: 14px 16px;
   border-radius: var(--radius-md);
-  background: #f4f8e8;
-  border: 1px solid #d7e8a5;
+  background: rgba(22, 101, 52, 0.075);
+  border: 0;
+  border-left: 3px solid rgba(22, 101, 52, 0.38);
   color: #365314;
   font-size: 0.88rem;
   line-height: 1.48;
@@ -911,8 +913,7 @@ select {
 }
 
 .monthly-recommendation {
-  background: #f4f8e8;
-  border-color: #d7e8a5;
+  background: rgba(22, 101, 52, 0.075);
   color: #365314;
 }
 
@@ -1067,8 +1068,9 @@ select {
   padding: 0 20px;
   color: var(--text);
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.16rem;
   font-weight: 800;
+  letter-spacing: -0.01em;
   list-style: none;
 }
 
@@ -1100,9 +1102,104 @@ select {
 
 .parameter-accordion-body {
   display: grid;
-  gap: 14px;
-  padding: 14px;
-  background: rgba(248, 250, 252, 0.7);
+  gap: 0;
+  padding: 30px 28px 34px;
+  background: var(--surface-raised);
+}
+
+.parameter-accordion-body > * + * {
+  margin-top: 40px;
+  padding-top: 34px;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.parameter-accordion-body .panel-block,
+.parameter-accordion-body .chart-card {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.parameter-accordion-body .panel-head {
+  justify-content: flex-start;
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.parameter-accordion-body .panel-head h3 {
+  width: auto;
+  text-align: left;
+}
+
+.parameter-accordion-body .panel-head h3 {
+  font-size: 1.24rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.parameter-accordion-body .monthly-stack {
+  display: grid;
+  gap: 30px;
+}
+
+.parameter-accordion-body .monthly-card {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.parameter-accordion-body .monthly-card + .monthly-card {
+  margin-top: 0;
+  padding-top: 28px;
+  border: 0;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.parameter-accordion-body .monthly-card h4 {
+  width: 100%;
+  margin-bottom: 12px;
+  text-align: center;
+  font-size: 1.02rem;
+  font-weight: 650;
+}
+
+.parameter-accordion-body .monthly-card-chart {
+  border-top: 0;
+}
+
+.parameter-accordion-body .monthly-exceedance-table-wrap {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.parameter-accordion-body .monthly-exceedance-recommendation {
+  min-height: 0;
+}
+
+.parameter-accordion-body .panel-insight {
+  border: 0;
+  border-left: 3px solid rgba(14, 116, 144, 0.42);
+  border-radius: var(--radius-md);
+  background: rgba(14, 116, 144, 0.075);
+  color: #155e75;
+}
+
+.parameter-accordion-body .wave-rose-container {
+  margin-top: 0;
+}
+
+.parameter-accordion-body .wave-rose-container .chart-card + .chart-card {
+  border-left: 1px solid rgba(15, 23, 42, 0.08);
+  padding-left: 20px;
+}
+
+.parameter-accordion-body > .recommendation-box {
+  margin-top: 40px;
 }
 
 .hero-copy,

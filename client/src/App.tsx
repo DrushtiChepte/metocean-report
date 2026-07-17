@@ -90,19 +90,27 @@ type MetoceanParameterConfig = {
 };
 
 const metoceanParameterConfigs: MetoceanParameterConfig[] = [
-  { key: "wind", label: "Wind", monthlyExceedanceKeys: ["wind"] },
+  { key: "wind", label: "Wind Analysis", monthlyExceedanceKeys: ["wind"] },
   {
     key: "wave",
-    label: "Wave",
+    label: "Wave Analysis",
     monthlyExceedanceKeys: ["waveHeight", "wavePeriod"],
   },
   {
     key: "swell",
-    label: "Swell",
+    label: "Swell Analysis",
     monthlyExceedanceKeys: ["swellHeight", "swellPeriod"],
   },
-  { key: "oceanCurrent", label: "Ocean Current", monthlyExceedanceKeys: [] },
-  { key: "stormSurge", label: "Storm Surge", monthlyExceedanceKeys: [] },
+  {
+    key: "oceanCurrent",
+    label: "Ocean Current Analysis",
+    monthlyExceedanceKeys: [],
+  },
+  {
+    key: "stormSurge",
+    label: "Storm Surge Analysis",
+    monthlyExceedanceKeys: [],
+  },
 ];
 
 const seasonalRecommendations = [
@@ -902,7 +910,8 @@ function MonthlyReportSection({ metrics }: { metrics: MetricBlock[] }) {
             </div>
             <div className="monthly-card-chart">
               <MonthlyTrendChart
-                title={`Monthly Trend — ${getMonthlyMetricLabel(metric.metric)}`}
+                title="Monthly Trend"
+                metricLabel={getMonthlyMetricLabel(metric.metric)}
                 data={toMonthlyTrendData(metric)}
               />
             </div>
@@ -1000,7 +1009,7 @@ function OperationalWindowsSection({
   return (
     <section className="panel-block">
       <div className="panel-head">
-        <h3>Operational windows</h3>
+        <h3>Operational Windows</h3>
       </div>
       <p className="section-clarity">
         Percentage of time each month when conditions remain within the selected
@@ -1112,7 +1121,7 @@ function AiOperationalRecommendation({
 
   return (
     <div className="recommendation-box ai-operational-recommendation">
-      <RecommendationTitle>AI Operational Recommendation</RecommendationTitle>
+      <RecommendationTitle>AI Operational Assessment</RecommendationTitle>
       <div className="recommendation-section">
         <strong>Overall Assessment</strong>
         {recommendation.assessment.map((item) => (
