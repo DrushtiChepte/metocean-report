@@ -491,74 +491,494 @@ export const dashboardData = {
       ],
       monthlyExceedance: {
         wind: [
-          { month: "January", thresholds: [{ threshold: 6, exceedance: 9.75 }, { threshold: 8, exceedance: 2.27 }, { threshold: 10, exceedance: 0.25 }] },
-          { month: "February", thresholds: [{ threshold: 6, exceedance: 16.21 }, { threshold: 8, exceedance: 4.95 }, { threshold: 10, exceedance: 0.77 }] },
-          { month: "March", thresholds: [{ threshold: 6, exceedance: 18.6 }, { threshold: 8, exceedance: 5.85 }, { threshold: 10, exceedance: 1.44 }] },
-          { month: "April", thresholds: [{ threshold: 6, exceedance: 13.59 }, { threshold: 8, exceedance: 3.31 }, { threshold: 10, exceedance: 0.52 }] },
-          { month: "May", thresholds: [{ threshold: 6, exceedance: 15.93 }, { threshold: 8, exceedance: 4.79 }, { threshold: 10, exceedance: 1.06 }] },
-          { month: "June", thresholds: [{ threshold: 6, exceedance: 13.41 }, { threshold: 8, exceedance: 3.8 }, { threshold: 10, exceedance: 0.86 }] },
-          { month: "July", thresholds: [{ threshold: 6, exceedance: 9.75 }, { threshold: 8, exceedance: 2.39 }, { threshold: 10, exceedance: 0.3 }] },
-          { month: "August", thresholds: [{ threshold: 6, exceedance: 7.33 }, { threshold: 8, exceedance: 0.68 }, { threshold: 10, exceedance: 0.08 }] },
-          { month: "September", thresholds: [{ threshold: 6, exceedance: 5.13 }, { threshold: 8, exceedance: 0.44 }, { threshold: 10, exceedance: 0 }] },
-          { month: "October", thresholds: [{ threshold: 6, exceedance: 3.25 }, { threshold: 8, exceedance: 0.13 }, { threshold: 10, exceedance: 0 }] },
-          { month: "November", thresholds: [{ threshold: 6, exceedance: 5.1 }, { threshold: 8, exceedance: 0.65 }, { threshold: 10, exceedance: 0.05 }] },
-          { month: "December", thresholds: [{ threshold: 6, exceedance: 6.38 }, { threshold: 8, exceedance: 1.31 }, { threshold: 10, exceedance: 0.1 }] },
+          {
+            month: "January",
+            thresholds: [
+              { threshold: 6, exceedance: 9.75 },
+              { threshold: 8, exceedance: 2.27 },
+              { threshold: 10, exceedance: 0.25 },
+            ],
+          },
+          {
+            month: "February",
+            thresholds: [
+              { threshold: 6, exceedance: 16.21 },
+              { threshold: 8, exceedance: 4.95 },
+              { threshold: 10, exceedance: 0.77 },
+            ],
+          },
+          {
+            month: "March",
+            thresholds: [
+              { threshold: 6, exceedance: 18.6 },
+              { threshold: 8, exceedance: 5.85 },
+              { threshold: 10, exceedance: 1.44 },
+            ],
+          },
+          {
+            month: "April",
+            thresholds: [
+              { threshold: 6, exceedance: 13.59 },
+              { threshold: 8, exceedance: 3.31 },
+              { threshold: 10, exceedance: 0.52 },
+            ],
+          },
+          {
+            month: "May",
+            thresholds: [
+              { threshold: 6, exceedance: 15.93 },
+              { threshold: 8, exceedance: 4.79 },
+              { threshold: 10, exceedance: 1.06 },
+            ],
+          },
+          {
+            month: "June",
+            thresholds: [
+              { threshold: 6, exceedance: 13.41 },
+              { threshold: 8, exceedance: 3.8 },
+              { threshold: 10, exceedance: 0.86 },
+            ],
+          },
+          {
+            month: "July",
+            thresholds: [
+              { threshold: 6, exceedance: 9.75 },
+              { threshold: 8, exceedance: 2.39 },
+              { threshold: 10, exceedance: 0.3 },
+            ],
+          },
+          {
+            month: "August",
+            thresholds: [
+              { threshold: 6, exceedance: 7.33 },
+              { threshold: 8, exceedance: 0.68 },
+              { threshold: 10, exceedance: 0.08 },
+            ],
+          },
+          {
+            month: "September",
+            thresholds: [
+              { threshold: 6, exceedance: 5.13 },
+              { threshold: 8, exceedance: 0.44 },
+              { threshold: 10, exceedance: 0 },
+            ],
+          },
+          {
+            month: "October",
+            thresholds: [
+              { threshold: 6, exceedance: 3.25 },
+              { threshold: 8, exceedance: 0.13 },
+              { threshold: 10, exceedance: 0 },
+            ],
+          },
+          {
+            month: "November",
+            thresholds: [
+              { threshold: 6, exceedance: 5.1 },
+              { threshold: 8, exceedance: 0.65 },
+              { threshold: 10, exceedance: 0.05 },
+            ],
+          },
+          {
+            month: "December",
+            thresholds: [
+              { threshold: 6, exceedance: 6.38 },
+              { threshold: 8, exceedance: 1.31 },
+              { threshold: 10, exceedance: 0.1 },
+            ],
+          },
         ],
         waveHeight: [
-          { month: "January", thresholds: [{ threshold: 0.5, exceedance: 21.09 }, { threshold: 1, exceedance: 1.74 }, { threshold: 1.5, exceedance: 0 }] },
-          { month: "February", thresholds: [{ threshold: 0.5, exceedance: 28.9 }, { threshold: 1, exceedance: 3.37 }, { threshold: 1.5, exceedance: 0 }] },
-          { month: "March", thresholds: [{ threshold: 0.5, exceedance: 27.52 }, { threshold: 1, exceedance: 2.39 }, { threshold: 1.5, exceedance: 0 }] },
-          { month: "April", thresholds: [{ threshold: 0.5, exceedance: 16.69 }, { threshold: 1, exceedance: 1.54 }, { threshold: 1.5, exceedance: 0 }] },
-          { month: "May", thresholds: [{ threshold: 0.5, exceedance: 20.54 }, { threshold: 1, exceedance: 1.13 }, { threshold: 1.5, exceedance: 0 }] },
-          { month: "June", thresholds: [{ threshold: 0.5, exceedance: 17.42 }, { threshold: 1, exceedance: 1.09 }, { threshold: 1.5, exceedance: 0 }] },
-          { month: "July", thresholds: [{ threshold: 0.5, exceedance: 9.15 }, { threshold: 1, exceedance: 0.23 }, { threshold: 1.5, exceedance: 0 }] },
-          { month: "August", thresholds: [{ threshold: 0.5, exceedance: 4.36 }, { threshold: 1, exceedance: 0.08 }, { threshold: 1.5, exceedance: 0 }] },
-          { month: "September", thresholds: [{ threshold: 0.5, exceedance: 3.23 }, { threshold: 1, exceedance: 0.03 }, { threshold: 1.5, exceedance: 0 }] },
-          { month: "October", thresholds: [{ threshold: 0.5, exceedance: 4.08 }, { threshold: 1, exceedance: 0 }, { threshold: 1.5, exceedance: 0 }] },
-          { month: "November", thresholds: [{ threshold: 0.5, exceedance: 14.4 }, { threshold: 1, exceedance: 0.86 }, { threshold: 1.5, exceedance: 0 }] },
-          { month: "December", thresholds: [{ threshold: 0.5, exceedance: 17.04 }, { threshold: 1, exceedance: 0.73 }, { threshold: 1.5, exceedance: 0 }] },
+          {
+            month: "January",
+            thresholds: [
+              { threshold: 0.5, exceedance: 21.09 },
+              { threshold: 1, exceedance: 1.74 },
+              { threshold: 1.5, exceedance: 0 },
+            ],
+          },
+          {
+            month: "February",
+            thresholds: [
+              { threshold: 0.5, exceedance: 28.9 },
+              { threshold: 1, exceedance: 3.37 },
+              { threshold: 1.5, exceedance: 0 },
+            ],
+          },
+          {
+            month: "March",
+            thresholds: [
+              { threshold: 0.5, exceedance: 27.52 },
+              { threshold: 1, exceedance: 2.39 },
+              { threshold: 1.5, exceedance: 0 },
+            ],
+          },
+          {
+            month: "April",
+            thresholds: [
+              { threshold: 0.5, exceedance: 16.69 },
+              { threshold: 1, exceedance: 1.54 },
+              { threshold: 1.5, exceedance: 0 },
+            ],
+          },
+          {
+            month: "May",
+            thresholds: [
+              { threshold: 0.5, exceedance: 20.54 },
+              { threshold: 1, exceedance: 1.13 },
+              { threshold: 1.5, exceedance: 0 },
+            ],
+          },
+          {
+            month: "June",
+            thresholds: [
+              { threshold: 0.5, exceedance: 17.42 },
+              { threshold: 1, exceedance: 1.09 },
+              { threshold: 1.5, exceedance: 0 },
+            ],
+          },
+          {
+            month: "July",
+            thresholds: [
+              { threshold: 0.5, exceedance: 9.15 },
+              { threshold: 1, exceedance: 0.23 },
+              { threshold: 1.5, exceedance: 0 },
+            ],
+          },
+          {
+            month: "August",
+            thresholds: [
+              { threshold: 0.5, exceedance: 4.36 },
+              { threshold: 1, exceedance: 0.08 },
+              { threshold: 1.5, exceedance: 0 },
+            ],
+          },
+          {
+            month: "September",
+            thresholds: [
+              { threshold: 0.5, exceedance: 3.23 },
+              { threshold: 1, exceedance: 0.03 },
+              { threshold: 1.5, exceedance: 0 },
+            ],
+          },
+          {
+            month: "October",
+            thresholds: [
+              { threshold: 0.5, exceedance: 4.08 },
+              { threshold: 1, exceedance: 0 },
+              { threshold: 1.5, exceedance: 0 },
+            ],
+          },
+          {
+            month: "November",
+            thresholds: [
+              { threshold: 0.5, exceedance: 14.4 },
+              { threshold: 1, exceedance: 0.86 },
+              { threshold: 1.5, exceedance: 0 },
+            ],
+          },
+          {
+            month: "December",
+            thresholds: [
+              { threshold: 0.5, exceedance: 17.04 },
+              { threshold: 1, exceedance: 0.73 },
+              { threshold: 1.5, exceedance: 0 },
+            ],
+          },
         ],
         wavePeriod: [
-          { month: "January", thresholds: [{ threshold: 5, exceedance: 38.63 }, { threshold: 7, exceedance: 4.26 }, { threshold: 9, exceedance: 0 }] },
-          { month: "February", thresholds: [{ threshold: 5, exceedance: 41.57 }, { threshold: 7, exceedance: 7.38 }, { threshold: 9, exceedance: 0 }] },
-          { month: "March", thresholds: [{ threshold: 5, exceedance: 32.48 }, { threshold: 7, exceedance: 4.46 }, { threshold: 9, exceedance: 0 }] },
-          { month: "April", thresholds: [{ threshold: 5, exceedance: 19.56 }, { threshold: 7, exceedance: 1.43 }, { threshold: 9, exceedance: 0 }] },
-          { month: "May", thresholds: [{ threshold: 5, exceedance: 23.56 }, { threshold: 7, exceedance: 0.53 }, { threshold: 9, exceedance: 0 }] },
-          { month: "June", thresholds: [{ threshold: 5, exceedance: 24.4 }, { threshold: 7, exceedance: 1.25 }, { threshold: 9, exceedance: 0 }] },
-          { month: "July", thresholds: [{ threshold: 5, exceedance: 13.13 }, { threshold: 7, exceedance: 0.25 }, { threshold: 9, exceedance: 0 }] },
-          { month: "August", thresholds: [{ threshold: 5, exceedance: 6.65 }, { threshold: 7, exceedance: 0 }, { threshold: 9, exceedance: 0 }] },
-          { month: "September", thresholds: [{ threshold: 5, exceedance: 7.32 }, { threshold: 7, exceedance: 0.16 }, { threshold: 9, exceedance: 0 }] },
-          { month: "October", thresholds: [{ threshold: 5, exceedance: 13.08 }, { threshold: 7, exceedance: 0.48 }, { threshold: 9, exceedance: 0 }] },
-          { month: "November", thresholds: [{ threshold: 5, exceedance: 28.57 }, { threshold: 7, exceedance: 4.3 }, { threshold: 9, exceedance: 0 }] },
-          { month: "December", thresholds: [{ threshold: 5, exceedance: 32.79 }, { threshold: 7, exceedance: 1.86 }, { threshold: 9, exceedance: 0 }] },
+          {
+            month: "January",
+            thresholds: [
+              { threshold: 5, exceedance: 38.63 },
+              { threshold: 7, exceedance: 4.26 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "February",
+            thresholds: [
+              { threshold: 5, exceedance: 41.57 },
+              { threshold: 7, exceedance: 7.38 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "March",
+            thresholds: [
+              { threshold: 5, exceedance: 32.48 },
+              { threshold: 7, exceedance: 4.46 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "April",
+            thresholds: [
+              { threshold: 5, exceedance: 19.56 },
+              { threshold: 7, exceedance: 1.43 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "May",
+            thresholds: [
+              { threshold: 5, exceedance: 23.56 },
+              { threshold: 7, exceedance: 0.53 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "June",
+            thresholds: [
+              { threshold: 5, exceedance: 24.4 },
+              { threshold: 7, exceedance: 1.25 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "July",
+            thresholds: [
+              { threshold: 5, exceedance: 13.13 },
+              { threshold: 7, exceedance: 0.25 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "August",
+            thresholds: [
+              { threshold: 5, exceedance: 6.65 },
+              { threshold: 7, exceedance: 0 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "September",
+            thresholds: [
+              { threshold: 5, exceedance: 7.32 },
+              { threshold: 7, exceedance: 0.16 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "October",
+            thresholds: [
+              { threshold: 5, exceedance: 13.08 },
+              { threshold: 7, exceedance: 0.48 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "November",
+            thresholds: [
+              { threshold: 5, exceedance: 28.57 },
+              { threshold: 7, exceedance: 4.3 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "December",
+            thresholds: [
+              { threshold: 5, exceedance: 32.79 },
+              { threshold: 7, exceedance: 1.86 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
         ],
         swellHeight: [
-          { month: "January", thresholds: [{ threshold: 0.3, exceedance: 34.3 }, { threshold: 0.6, exceedance: 1.94 }, { threshold: 1, exceedance: 0 }] },
-          { month: "February", thresholds: [{ threshold: 0.3, exceedance: 38.88 }, { threshold: 0.6, exceedance: 4.37 }, { threshold: 1, exceedance: 0 }] },
-          { month: "March", thresholds: [{ threshold: 0.3, exceedance: 35.16 }, { threshold: 0.6, exceedance: 2.39 }, { threshold: 1, exceedance: 0 }] },
-          { month: "April", thresholds: [{ threshold: 0.3, exceedance: 22.76 }, { threshold: 0.6, exceedance: 0.89 }, { threshold: 1, exceedance: 0 }] },
-          { month: "May", thresholds: [{ threshold: 0.3, exceedance: 26.94 }, { threshold: 0.6, exceedance: 0.3 }, { threshold: 1, exceedance: 0 }] },
-          { month: "June", thresholds: [{ threshold: 0.3, exceedance: 25.99 }, { threshold: 0.6, exceedance: 0.34 }, { threshold: 1, exceedance: 0 }] },
-          { month: "July", thresholds: [{ threshold: 0.3, exceedance: 13.21 }, { threshold: 0.6, exceedance: 0.05 }, { threshold: 1, exceedance: 0 }] },
-          { month: "August", thresholds: [{ threshold: 0.3, exceedance: 7.48 }, { threshold: 0.6, exceedance: 0 }, { threshold: 1, exceedance: 0 }] },
-          { month: "September", thresholds: [{ threshold: 0.3, exceedance: 8.18 }, { threshold: 0.6, exceedance: 0 }, { threshold: 1, exceedance: 0 }] },
-          { month: "October", thresholds: [{ threshold: 0.3, exceedance: 11.32 }, { threshold: 0.6, exceedance: 0.15 }, { threshold: 1, exceedance: 0 }] },
-          { month: "November", thresholds: [{ threshold: 0.3, exceedance: 26.04 }, { threshold: 0.6, exceedance: 1.88 }, { threshold: 1, exceedance: 0 }] },
-          { month: "December", thresholds: [{ threshold: 0.3, exceedance: 29.31 }, { threshold: 0.6, exceedance: 1.23 }, { threshold: 1, exceedance: 0 }] },
+          {
+            month: "January",
+            thresholds: [
+              { threshold: 0.3, exceedance: 34.3 },
+              { threshold: 0.6, exceedance: 1.94 },
+              { threshold: 1, exceedance: 0 },
+            ],
+          },
+          {
+            month: "February",
+            thresholds: [
+              { threshold: 0.3, exceedance: 38.88 },
+              { threshold: 0.6, exceedance: 4.37 },
+              { threshold: 1, exceedance: 0 },
+            ],
+          },
+          {
+            month: "March",
+            thresholds: [
+              { threshold: 0.3, exceedance: 35.16 },
+              { threshold: 0.6, exceedance: 2.39 },
+              { threshold: 1, exceedance: 0 },
+            ],
+          },
+          {
+            month: "April",
+            thresholds: [
+              { threshold: 0.3, exceedance: 22.76 },
+              { threshold: 0.6, exceedance: 0.89 },
+              { threshold: 1, exceedance: 0 },
+            ],
+          },
+          {
+            month: "May",
+            thresholds: [
+              { threshold: 0.3, exceedance: 26.94 },
+              { threshold: 0.6, exceedance: 0.3 },
+              { threshold: 1, exceedance: 0 },
+            ],
+          },
+          {
+            month: "June",
+            thresholds: [
+              { threshold: 0.3, exceedance: 25.99 },
+              { threshold: 0.6, exceedance: 0.34 },
+              { threshold: 1, exceedance: 0 },
+            ],
+          },
+          {
+            month: "July",
+            thresholds: [
+              { threshold: 0.3, exceedance: 13.21 },
+              { threshold: 0.6, exceedance: 0.05 },
+              { threshold: 1, exceedance: 0 },
+            ],
+          },
+          {
+            month: "August",
+            thresholds: [
+              { threshold: 0.3, exceedance: 7.48 },
+              { threshold: 0.6, exceedance: 0 },
+              { threshold: 1, exceedance: 0 },
+            ],
+          },
+          {
+            month: "September",
+            thresholds: [
+              { threshold: 0.3, exceedance: 8.18 },
+              { threshold: 0.6, exceedance: 0 },
+              { threshold: 1, exceedance: 0 },
+            ],
+          },
+          {
+            month: "October",
+            thresholds: [
+              { threshold: 0.3, exceedance: 11.32 },
+              { threshold: 0.6, exceedance: 0.15 },
+              { threshold: 1, exceedance: 0 },
+            ],
+          },
+          {
+            month: "November",
+            thresholds: [
+              { threshold: 0.3, exceedance: 26.04 },
+              { threshold: 0.6, exceedance: 1.88 },
+              { threshold: 1, exceedance: 0 },
+            ],
+          },
+          {
+            month: "December",
+            thresholds: [
+              { threshold: 0.3, exceedance: 29.31 },
+              { threshold: 0.6, exceedance: 1.23 },
+              { threshold: 1, exceedance: 0 },
+            ],
+          },
         ],
         swellPeriod: [
-          { month: "January", thresholds: [{ threshold: 5, exceedance: 14.31 }, { threshold: 7, exceedance: 1.16 }, { threshold: 9, exceedance: 0 }] },
-          { month: "February", thresholds: [{ threshold: 5, exceedance: 20.05 }, { threshold: 7, exceedance: 1.91 }, { threshold: 9, exceedance: 0 }] },
-          { month: "March", thresholds: [{ threshold: 5, exceedance: 15.83 }, { threshold: 7, exceedance: 1.31 }, { threshold: 9, exceedance: 0 }] },
-          { month: "April", thresholds: [{ threshold: 5, exceedance: 8.54 }, { threshold: 7, exceedance: 0.34 }, { threshold: 9, exceedance: 0 }] },
-          { month: "May", thresholds: [{ threshold: 5, exceedance: 9.15 }, { threshold: 7, exceedance: 0.08 }, { threshold: 9, exceedance: 0 }] },
-          { month: "June", thresholds: [{ threshold: 5, exceedance: 9.51 }, { threshold: 7, exceedance: 0.21 }, { threshold: 9, exceedance: 0 }] },
-          { month: "July", thresholds: [{ threshold: 5, exceedance: 3.4 }, { threshold: 7, exceedance: 0.05 }, { threshold: 9, exceedance: 0 }] },
-          { month: "August", thresholds: [{ threshold: 5, exceedance: 0.81 }, { threshold: 7, exceedance: 0 }, { threshold: 9, exceedance: 0 }] },
-          { month: "September", thresholds: [{ threshold: 5, exceedance: 1.33 }, { threshold: 7, exceedance: 0.03 }, { threshold: 9, exceedance: 0 }] },
-          { month: "October", thresholds: [{ threshold: 5, exceedance: 1.94 }, { threshold: 7, exceedance: 0 }, { threshold: 9, exceedance: 0 }] },
-          { month: "November", thresholds: [{ threshold: 5, exceedance: 10.86 }, { threshold: 7, exceedance: 0.62 }, { threshold: 9, exceedance: 0 }] },
-          { month: "December", thresholds: [{ threshold: 5, exceedance: 10.01 }, { threshold: 7, exceedance: 0.48 }, { threshold: 9, exceedance: 0 }] },
+          {
+            month: "January",
+            thresholds: [
+              { threshold: 5, exceedance: 14.31 },
+              { threshold: 7, exceedance: 1.16 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "February",
+            thresholds: [
+              { threshold: 5, exceedance: 20.05 },
+              { threshold: 7, exceedance: 1.91 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "March",
+            thresholds: [
+              { threshold: 5, exceedance: 15.83 },
+              { threshold: 7, exceedance: 1.31 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "April",
+            thresholds: [
+              { threshold: 5, exceedance: 8.54 },
+              { threshold: 7, exceedance: 0.34 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "May",
+            thresholds: [
+              { threshold: 5, exceedance: 9.15 },
+              { threshold: 7, exceedance: 0.08 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "June",
+            thresholds: [
+              { threshold: 5, exceedance: 9.51 },
+              { threshold: 7, exceedance: 0.21 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "July",
+            thresholds: [
+              { threshold: 5, exceedance: 3.4 },
+              { threshold: 7, exceedance: 0.05 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "August",
+            thresholds: [
+              { threshold: 5, exceedance: 0.81 },
+              { threshold: 7, exceedance: 0 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "September",
+            thresholds: [
+              { threshold: 5, exceedance: 1.33 },
+              { threshold: 7, exceedance: 0.03 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "October",
+            thresholds: [
+              { threshold: 5, exceedance: 1.94 },
+              { threshold: 7, exceedance: 0 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "November",
+            thresholds: [
+              { threshold: 5, exceedance: 10.86 },
+              { threshold: 7, exceedance: 0.62 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
+          {
+            month: "December",
+            thresholds: [
+              { threshold: 5, exceedance: 10.01 },
+              { threshold: 7, exceedance: 0.48 },
+              { threshold: 9, exceedance: 0 },
+            ],
+          },
         ],
       },
       monthlyExceedanceRecommendations: {
@@ -591,7 +1011,7 @@ export const dashboardData = {
     },
     {
       slug: "jutal-offshore",
-      title: "Jutal Offshore",
+      title: "SITE 2",
       kind: "site",
       workbookSheet: "Jutal Offshore",
       coordinates: null,
@@ -717,7 +1137,7 @@ export const dashboardData = {
     },
     {
       slug: "das-island",
-      title: "Das Island",
+      title: "SITE 3",
       kind: "site",
       workbookSheet: "Das Island",
       coordinates: null,

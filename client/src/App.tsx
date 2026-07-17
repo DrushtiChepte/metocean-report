@@ -75,6 +75,35 @@ const monthlyExceedanceOptions = [
 ] as const;
 
 type MonthlyExceedanceKey = (typeof monthlyExceedanceOptions)[number]["key"];
+type MonthlyExceedanceOption = (typeof monthlyExceedanceOptions)[number];
+type MetoceanParameterKey =
+  | "wind"
+  | "wave"
+  | "swell"
+  | "oceanCurrent"
+  | "stormSurge";
+
+type MetoceanParameterConfig = {
+  key: MetoceanParameterKey;
+  label: string;
+  monthlyExceedanceKeys: MonthlyExceedanceKey[];
+};
+
+const metoceanParameterConfigs: MetoceanParameterConfig[] = [
+  { key: "wind", label: "Wind", monthlyExceedanceKeys: ["wind"] },
+  {
+    key: "wave",
+    label: "Wave",
+    monthlyExceedanceKeys: ["waveHeight", "wavePeriod"],
+  },
+  {
+    key: "swell",
+    label: "Swell",
+    monthlyExceedanceKeys: ["swellHeight", "swellPeriod"],
+  },
+  { key: "oceanCurrent", label: "Ocean Current", monthlyExceedanceKeys: [] },
+  { key: "stormSurge", label: "Storm Surge", monthlyExceedanceKeys: [] },
+];
 
 const seasonalRecommendations = [
   "The simultaneous occurrence of higher wave heights and longer wave periods during Winter and Pre-monsoon is expected to increase vessel motions alongside berths, potentially affecting cargo transfer efficiency, mooring performance, and pilot boarding operations. During Post-monsoon, the comparatively calmer sea state provides a wider operational envelope for routine marine logistics.",
@@ -127,6 +156,77 @@ const defaultMonthlyExceedanceRecommendations: Record<
     "Projects requiring high vessel stability should preferably be undertaken during August-October, when exceedance of longer swell periods is minimal and overall sea-state conditions are more favourable.",
     "Swell-period statistics should be integrated with wind and wave assessments to support comprehensive operability evaluations and minimise weather-related operational risks for offshore campaigns.",
   ],
+};
+
+const aiOperationalRecommendations: Record<
+  MetoceanParameterKey,
+  { assessment: string[]; actions: string[] }
+> = {
+  wind: {
+    assessment: [
+      "Wind conditions are generally suitable for routine marine operations, with the strongest operational reliability indicated during August-October and the best overall operability window extending through July-October.",
+      "Higher wind exceedance during February-May and seasonal strengthening during Pre-monsoon and Winter should be treated as the main wind-related source of weather downtime for crane-assisted cargo handling, heavy lifting, and LILO campaigns.",
+    ],
+    actions: [
+      "Prioritise Load-In/Load-Out (LILO), heavy lifting, crane operations, vessel mobilisation, and offshore installation during the August-October low-exceedance window where programme flexibility allows.",
+      "Allow additional weather contingency for February-May work packages, especially where lifting limits, barge positioning, or vessel handling are sensitive to wind exceedance.",
+      "Use short-term forecasts to confirm wind conditions before critical lifts, and align vessel or barge orientation with prevailing WNW winds where practical.",
+      "For temporary offshore activities, use lower return-period wind levels for operational planning while keeping RP50-RP100 values reserved for permanent or long-duration design checks.",
+      "Assess wind together with wave height, wave period, and swell when defining site-specific operational weather windows rather than using wind limits in isolation.",
+    ],
+  },
+  wave: {
+    assessment: [
+      "Wave height exceedance is low for most operational thresholds, supporting stable vessel conditions for cargo handling, marine construction, dredging, and routine floating operations.",
+      "Wave period remains the more frequent wave-related constraint and should be assessed alongside significant wave height, particularly where floating cranes, barges, and offshore support vessels are sensitive to vessel motion.",
+    ],
+    actions: [
+      "Schedule motion-sensitive marine construction, dredging, vessel mobilisation, cargo handling, and floating operations preferentially during August-October when wave-height and wave-period exceedance are lowest.",
+      "Use combined wave height and wave period criteria when defining operational weather windows for floating cranes, barges, offshore support vessels, and precision offshore installation.",
+      "Review forecast wave period before heavy lifts and cargo transfer operations, even when wave heights are moderate, because longer periods can increase vessel response.",
+      "Consider the predominant NNW wave approach when planning vessel heading, barge alignment, mooring arrangements, and alongside operations.",
+      "Apply site-specific wave-height limits in operability assessment to estimate realistic weather downtime for different vessel classes and work methods.",
+    ],
+  },
+  swell: {
+    assessment: [
+      "Swell height and swell period remain within operational limits for most of the observation period, indicating that swell is unlikely to be the governing constraint for routine port and offshore operations.",
+      "Longer-period swell can still influence vessel motions, so swell should remain part of the operability assessment for crew transfer, survey operations, offshore installation, and floating vessel work.",
+    ],
+    actions: [
+      "Plan crew transfer, survey operations, offshore installation, and other vessel-motion-sensitive activities during August-October where possible, when swell exceedance is consistently lowest.",
+      "Assess swell height together with locally generated wave height and wave period to represent the combined sea state for floating operations.",
+      "Include swell-period criteria for projects requiring high vessel stability, particularly floating cranes, barges, and offshore support vessels.",
+      "Use swell statistics as a supporting input to weather downtime estimates rather than treating swell height alone as the primary operational constraint.",
+      "Confirm swell period in the short-term forecast before critical cargo transfer, offshore installation, or precision marine work.",
+    ],
+  },
+  oceanCurrent: {
+    assessment: [
+      "The ocean current regime is consistently weak, so vessel manoeuvring and mooring loads are expected to be governed primarily by wind and sea-state conditions rather than current forces.",
+      "Current conditions are therefore not expected to materially constrain routine berthing, unberthing, cargo handling, or vessel mobilisation under the reported conditions.",
+    ],
+    actions: [
+      "Prioritise wind, wave height, wave period, and swell criteria when defining operational weather windows, while retaining current checks for vessel manoeuvring and mooring assessment.",
+      "Use current statistics as a secondary input for tug planning, berth allocation, and alongside mooring checks.",
+      "Confirm site-specific current limits for specialised floating operations where low-speed manoeuvring or barge positioning tolerances are tight.",
+      "Assess current together with wind direction and sea state during berthing, unberthing, and vessel mobilisation planning.",
+      "Maintain current monitoring during offshore support vessel and barge operations, but do not treat current as the primary driver of weather downtime unless forecasts indicate otherwise.",
+    ],
+  },
+  stormSurge: {
+    assessment: [
+      "Storm surge should be considered as part of marine operability and berth-interface planning, particularly where water level affects cargo handling, access, mooring geometry, or alongside clearances.",
+      "For the reported operations, storm surge is best treated as a site-specific operational limit to be checked alongside wind, wave, swell, and current conditions.",
+    ],
+    actions: [
+      "Include storm surge and associated water-level criteria in operational weather windows for berthing, unberthing, cargo handling, and marine construction activities.",
+      "Check berth clearances, mooring arrangement, and vessel access assumptions before LILO or heavy cargo transfer when elevated water levels are forecast.",
+      "Use site-specific operational limits to determine whether storm surge affects safe crane operations, vessel access, or barge positioning.",
+      "Assess storm surge together with wind and sea-state forecasts, since combined conditions can affect mooring loads and vessel motions alongside.",
+      "Maintain flexible work planning for operations where water level directly influences cargo handling sequence, access windows, or floating equipment setup.",
+    ],
+  },
 };
 
 function formatNumber(value: number | string) {
@@ -603,19 +703,24 @@ function getMonthlyRecommendations(metric: string) {
 function MonthlyExceedanceSection({
   monthlyExceedance,
   recommendations,
+  parameterOption,
 }: {
   monthlyExceedance: MonthlyExceedanceGroup;
   recommendations?: MonthlyExceedanceRecommendations;
+  parameterOption?: MonthlyExceedanceOption;
 }) {
   const firstAvailableOption =
+    parameterOption ??
     monthlyExceedanceOptions.find(
       (option) =>
         getMonthlyExceedanceRows(monthlyExceedance, option.key).length,
-    ) ?? monthlyExceedanceOptions[0];
+    ) ??
+    monthlyExceedanceOptions[0];
   const [selectedKey, setSelectedKey] = useState<MonthlyExceedanceKey>(
     firstAvailableOption.key,
   );
   const selectedOption =
+    parameterOption ??
     monthlyExceedanceOptions.find((option) => option.key === selectedKey) ??
     firstAvailableOption;
   const rows = getMonthlyExceedanceRows(monthlyExceedance, selectedOption.key);
@@ -635,28 +740,31 @@ function MonthlyExceedanceSection({
         thresholds. This helps identify seasonal variations for planning
         load-in/load-out operations.
       </p>
-      <div className="monthly-exceedance-toolbar">
-        <label htmlFor="monthly-exceedance-parameter">Parameter</label>
-        <select
-          id="monthly-exceedance-parameter"
-          value={selectedOption.key}
-          onChange={(event) =>
-            setSelectedKey(event.target.value as MonthlyExceedanceKey)
-          }
-        >
-          {monthlyExceedanceOptions.map((option) => (
-            <option
-              key={option.key}
-              value={option.key}
-              disabled={
-                !getMonthlyExceedanceRows(monthlyExceedance, option.key).length
-              }
-            >
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </div>
+      {!parameterOption ? (
+        <div className="monthly-exceedance-toolbar">
+          <label htmlFor="monthly-exceedance-parameter">Parameter</label>
+          <select
+            id="monthly-exceedance-parameter"
+            value={selectedOption.key}
+            onChange={(event) =>
+              setSelectedKey(event.target.value as MonthlyExceedanceKey)
+            }
+          >
+            {monthlyExceedanceOptions.map((option) => (
+              <option
+                key={option.key}
+                value={option.key}
+                disabled={
+                  !getMonthlyExceedanceRows(monthlyExceedance, option.key)
+                    .length
+                }
+              >
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
       <div className="monthly-exceedance-layout">
         {rows.length ? (
           <div className="table-scroll monthly-exceedance-table-wrap">
@@ -721,6 +829,444 @@ function toMonthlyTrendData(metric: MetricBlock): MonthlyStat[] {
     P95: valuesByStat.get("P95")?.[index] ?? 0,
     MAX: valuesByStat.get("MAX")?.[index] ?? 0,
   }));
+}
+
+function getMetoceanParameterKey(
+  parameter: string,
+): MetoceanParameterKey | null {
+  const normalized = parameter.toUpperCase();
+
+  if (normalized.includes("OCEAN_CURR") || normalized.includes("OCEAN CURR")) {
+    return "oceanCurrent";
+  }
+
+  if (
+    normalized.includes("STORM_SURGE") ||
+    normalized.includes("STORM SURGE")
+  ) {
+    return "stormSurge";
+  }
+
+  if (normalized.includes("SWELL")) {
+    return "swell";
+  }
+
+  if (normalized.includes("WAVE")) {
+    return "wave";
+  }
+
+  if (normalized.includes("WIND")) {
+    return "wind";
+  }
+
+  return null;
+}
+
+function MonthlyReportSection({ metrics }: { metrics: MetricBlock[] }) {
+  if (!metrics.length) {
+    return null;
+  }
+
+  return (
+    <section className="panel-block">
+      <div className="panel-head">
+        <h3>Monthly Statistics</h3>
+      </div>
+      <div className="monthly-stack">
+        {metrics.map((metric) => (
+          <div key={metric.metric} className="monthly-card">
+            <h4>{getMonthlyMetricLabel(metric.metric)}</h4>
+            <div className="table-scroll">
+              <table className="digitized-table compact">
+                <thead>
+                  <tr>
+                    <th>Stat</th>
+                    {monthLabels.map((month) => (
+                      <th key={month}>{month}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {metric.rows.map((row) => (
+                    <tr key={row.stat}>
+                      <td>{row.stat}</td>
+                      {row.values.map((value, index) => (
+                        <td key={`${row.stat}-${index}`}>
+                          {formatNumber(value)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="monthly-card-chart">
+              <MonthlyTrendChart
+                title={`Monthly Trend — ${getMonthlyMetricLabel(metric.metric)}`}
+                data={toMonthlyTrendData(metric)}
+              />
+            </div>
+            {/* {getMonthlyRecommendations(metric.metric).length ? (
+              <div className="recommendation-box monthly-recommendation">
+                <RecommendationTitle>Recommendations</RecommendationTitle>
+                <ul>
+                  {getMonthlyRecommendations(metric.metric).map(
+                    (recommendation) => (
+                      <li key={recommendation}>{recommendation}</li>
+                    ),
+                  )}
+                </ul>
+              </div>
+            ) : null} */}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function SeasonalReportSection({
+  metrics,
+  showRecommendations = false,
+}: {
+  metrics: MetricBlock[];
+  showRecommendations?: boolean;
+}) {
+  if (!metrics.length) {
+    return null;
+  }
+
+  return (
+    <section className="panel-block">
+      <div className="panel-head">
+        <h3>Seasonal Statistics</h3>
+      </div>
+      <div className="table-scroll">
+        <table className="digitized-table compact">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Stat</th>
+              {seasonLabels.map((season) => (
+                <th key={season}>{season}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {metrics.flatMap((metric) =>
+              metric.rows.map((row) => (
+                <tr key={`${metric.metric}-${row.stat}`}>
+                  <td>{getSeasonalMetricLabel(metric.metric)}</td>
+                  <td>{row.stat}</td>
+                  {row.values.map((value, index) => (
+                    <td key={`${metric.metric}-${row.stat}-${index}`}>
+                      {formatNumber(value)}
+                    </td>
+                  ))}
+                </tr>
+              )),
+            )}
+          </tbody>
+        </table>
+      </div>
+      <div className="charts-grid seasonal-snapshot-grid">
+        {metrics.map((metric) => (
+          <SeasonalChartCard key={metric.metric} metric={metric} />
+        ))}
+      </div>
+      {/* {showRecommendations ? (
+        <div className="recommendation-box seasonal-recommendation">
+          <RecommendationTitle>Recommendations</RecommendationTitle>
+          <ul>
+            {seasonalRecommendations.map((recommendation) => (
+              <li key={recommendation}>{recommendation}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null} */}
+    </section>
+  );
+}
+
+function OperationalWindowsSection({
+  report,
+}: {
+  report: Pick<SiteReport, "operationalWindows">;
+}) {
+  if (!report.operationalWindows) {
+    return null;
+  }
+
+  return (
+    <section className="panel-block">
+      <div className="panel-head">
+        <h3>Operational windows</h3>
+      </div>
+      <p className="section-clarity">
+        Percentage of time each month when conditions remain within the selected
+        operating limits. <br></br>(wind_speed &lt;= 7m/s and wave_height &lt;=
+        0.5m)
+      </p>
+
+      <div className="operability-legend">
+        {[
+          { tone: "low", label: "Low", range: "< 70%" },
+          { tone: "moderate", label: "Moderate", range: "70-79%" },
+          { tone: "good", label: "Good", range: "80-89%" },
+          { tone: "excellent", label: "Excellent", range: ">= 90%" },
+        ].map(({ tone, label, range }) => (
+          <div key={tone} className={`operability-legend-item ${tone}`}>
+            <span className="operability-legend-swatch" />
+            <span className="operability-legend-label">{label}</span>
+            <span className="operability-legend-range">{range}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="operability-grid">
+        {report.operationalWindows.months.map((month) => (
+          <div
+            key={month.month}
+            className={`operability-card ${getOperabilityTone(month.operability)}`}
+          >
+            <span>{month.month}</span>
+            <strong>{(month.operability * 100).toFixed(1)}%</strong>
+          </div>
+        ))}
+      </div>
+
+      <p className="panel-insight">
+        {getOperationalWindowInsight(report.operationalWindows)}
+      </p>
+      <p className="panel-insight">
+        {getOperationalWindowRiskNote(report.operationalWindows)}
+      </p>
+    </section>
+  );
+}
+
+function OverallExceedanceSection({
+  groups,
+  showRecommendations = false,
+}: {
+  groups: NonNullable<SiteReport["exceedance"]>;
+  showRecommendations?: boolean;
+}) {
+  if (!groups.length) {
+    return null;
+  }
+
+  return (
+    <section className="panel-block exceedance-section">
+      <div className="panel-head">
+        <h3>Overall Exceedance</h3>
+      </div>
+      <p className="section-clarity">
+        Probability that each metocean parameter exceeds the listed threshold
+        value.
+      </p>
+      <div className="exceedance-grid">
+        {groups.map((group) => (
+          <div key={group.parameter} className="exceedance-card">
+            <div className="exceedance-card-head">
+              <strong>{getParameterDisplayName(group.parameter)}</strong>
+            </div>
+            <p className="threshold-guide">
+              {getThresholdGuide(group.parameter)}
+            </p>
+            <div className="threshold-strip">
+              {group.thresholds.map((threshold, index) => (
+                <div
+                  key={`${group.parameter}-${threshold.threshold}`}
+                  className={`threshold-pill ${getThresholdTone(index)}`}
+                >
+                  <strong>{threshold.threshold}</strong>
+                  <span>{(threshold.exceedance * 100).toFixed(2)}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="panel-insight">{getExceedanceInsight(groups)}</p>
+      {showRecommendations ? (
+        <div className="recommendation-box exceedance-recommendation">
+          <RecommendationTitle>Recommendations</RecommendationTitle>
+          <ul>
+            {overallExceedanceRecommendations.map((recommendation) => (
+              <li key={recommendation}>{recommendation}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function AiOperationalRecommendation({
+  parameterKey,
+}: {
+  parameterKey: MetoceanParameterKey;
+}) {
+  const recommendation = aiOperationalRecommendations[parameterKey];
+
+  return (
+    <div className="recommendation-box ai-operational-recommendation">
+      <RecommendationTitle>AI Operational Recommendation</RecommendationTitle>
+      <div className="recommendation-section">
+        <strong>Overall Assessment</strong>
+        {recommendation.assessment.map((item) => (
+          <p key={item}>{item}</p>
+        ))}
+      </div>
+      <div className="recommendation-section">
+        <strong>Operational Recommendations</strong>
+        <ul>
+          {recommendation.actions.map((action) => (
+            <li key={action}>{action}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+function ParameterAccordion({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <details className="parameter-accordion">
+      <summary className="parameter-accordion-summary">
+        <span>{label}</span>
+      </summary>
+      <div className="parameter-accordion-body">{children}</div>
+    </details>
+  );
+}
+
+function buildParameterAnalyses(report: SiteReport) {
+  return metoceanParameterConfigs
+    .map((config) => {
+      const monthlyMetrics =
+        report.monthlyStats?.filter(
+          (metric) => getMetoceanParameterKey(metric.metric) === config.key,
+        ) ?? [];
+      const seasonalMetrics =
+        report.seasonalStats?.filter(
+          (metric) => getMetoceanParameterKey(metric.metric) === config.key,
+        ) ?? [];
+      const exceedanceGroups =
+        report.exceedance?.filter(
+          (group) => getMetoceanParameterKey(group.parameter) === config.key,
+        ) ?? [];
+      const monthlyExceedanceOptionsForParameter = config.monthlyExceedanceKeys
+        .map((key) =>
+          monthlyExceedanceOptions.find((option) => option.key === key),
+        )
+        .filter((option): option is MonthlyExceedanceOption => {
+          // ensure option is defined before accessing its key to satisfy TS
+          if (option == null || !report.monthlyExceedance) return false;
+          return (
+            getMonthlyExceedanceRows(report.monthlyExceedance, option.key)
+              .length > 0
+          );
+        });
+      const content: ReactNode[] = [];
+
+      if (monthlyMetrics.length) {
+        content.push(
+          <MonthlyReportSection
+            key={`${config.key}-monthly`}
+            metrics={monthlyMetrics}
+          />,
+        );
+      }
+
+      if (seasonalMetrics.length) {
+        content.push(
+          <SeasonalReportSection
+            key={`${config.key}-seasonal`}
+            metrics={seasonalMetrics}
+            showRecommendations={config.key === "wind"}
+          />,
+        );
+      }
+
+      if (config.key === "wind" && report.operationalWindows) {
+        content.push(
+          <OperationalWindowsSection
+            key={`${config.key}-operational-windows`}
+            report={report}
+          />,
+        );
+      }
+
+      if (exceedanceGroups.length) {
+        content.push(
+          <OverallExceedanceSection
+            key={`${config.key}-overall-exceedance`}
+            groups={exceedanceGroups}
+            showRecommendations={config.key === "wind"}
+          />,
+        );
+      }
+
+      if (report.monthlyExceedance) {
+        for (const option of monthlyExceedanceOptionsForParameter) {
+          content.push(
+            <MonthlyExceedanceSection
+              key={`${config.key}-monthly-exceedance-${option.key}`}
+              monthlyExceedance={report.monthlyExceedance}
+              parameterOption={option}
+              recommendations={report.monthlyExceedanceRecommendations}
+            />,
+          );
+        }
+      }
+
+      if (report.slug === "musaffah-port" && config.key === "wind") {
+        content.push(
+          <Suspense
+            key={`${config.key}-rose`}
+            fallback={
+              <div className="status-card">Loading wind rose analysis...</div>
+            }
+          >
+            <WindRoseChart />
+          </Suspense>,
+        );
+      }
+
+      if (report.slug === "musaffah-port" && config.key === "wave") {
+        content.push(
+          <Suspense
+            key={`${config.key}-rose`}
+            fallback={
+              <div className="status-card">Loading wave rose analysis...</div>
+            }
+          >
+            <WaveRoseChart />
+          </Suspense>,
+        );
+      }
+
+      content.push(
+        <AiOperationalRecommendation
+          key={`${config.key}-ai-operational-recommendation`}
+          parameterKey={config.key}
+        />,
+      );
+
+      return {
+        ...config,
+        content,
+      };
+    })
+    .filter((section) => section.content.length);
 }
 
 function ReportShell({
@@ -892,6 +1438,7 @@ function ExtremeValuePanel({
 
 function renderSite(report: SiteReport) {
   const hideIntroPanels = report.slug === "musaffah-port";
+  const parameterAnalyses = buildParameterAnalyses(report);
 
   return (
     <>
@@ -970,13 +1517,23 @@ function renderSite(report: SiteReport) {
         />
       ) : null}
 
-      {report.monthlyStats?.length ? (
+      {parameterAnalyses.length ? (
+        <div className="parameter-accordion-stack">
+          {parameterAnalyses.map((section) => (
+            <ParameterAccordion key={section.key} label={section.label}>
+              {section.content}
+            </ParameterAccordion>
+          ))}
+        </div>
+      ) : null}
+
+      {false && report.monthlyStats?.length ? (
         <section className="panel-block">
           <div className="panel-head">
             <h3>Monthly report</h3>
           </div>
           <div className="monthly-stack">
-            {report.monthlyStats.map((metric) => (
+            {(report.monthlyStats ?? []).map((metric) => (
               <div key={metric.metric} className="monthly-card">
                 <h4>{getMonthlyMetricLabel(metric.metric)}</h4>
                 <div className="table-scroll">
@@ -1027,7 +1584,7 @@ function renderSite(report: SiteReport) {
         </section>
       ) : null}
 
-      {report.seasonalStats?.length ? (
+      {false && report.seasonalStats?.length ? (
         <section className="panel-block">
           <div className="panel-head">
             <h3>Seasonal report</h3>
@@ -1044,7 +1601,7 @@ function renderSite(report: SiteReport) {
                 </tr>
               </thead>
               <tbody>
-                {report.seasonalStats.flatMap((metric) =>
+                {(report.seasonalStats ?? []).flatMap((metric) =>
                   metric.rows.map((row) => (
                     <tr key={`${metric.metric}-${row.stat}`}>
                       <td>{getSeasonalMetricLabel(metric.metric)}</td>
@@ -1061,7 +1618,7 @@ function renderSite(report: SiteReport) {
             </table>
           </div>
           <div className="charts-grid seasonal-snapshot-grid">
-            {report.seasonalStats.map((metric) => (
+            {(report.seasonalStats ?? []).map((metric) => (
               <SeasonalChartCard key={metric.metric} metric={metric} />
             ))}
           </div>
@@ -1076,7 +1633,7 @@ function renderSite(report: SiteReport) {
         </section>
       ) : null}
 
-      {report.operationalWindows ? (
+      {false && report.operationalWindows ? (
         <section className="panel-block">
           <div className="panel-head">
             <h3>Operational windows</h3>
@@ -1103,7 +1660,7 @@ function renderSite(report: SiteReport) {
           </div>
 
           <div className="operability-grid">
-            {report.operationalWindows.months.map((month) => (
+            {report.operationalWindows?.months?.map((month) => (
               <div
                 key={month.month}
                 className={`operability-card ${getOperabilityTone(month.operability)}`}
@@ -1116,15 +1673,17 @@ function renderSite(report: SiteReport) {
 
           {/* <p className="panel-note">{report.operationalWindows.note}</p> */}
           <p className="panel-insight">
-            {getOperationalWindowInsight(report.operationalWindows)}
+            {report.operationalWindows &&
+              getOperationalWindowInsight(report.operationalWindows)}
           </p>
           <p className="panel-insight">
-            {getOperationalWindowRiskNote(report.operationalWindows)}
+            {report.operationalWindows &&
+              getOperationalWindowRiskNote(report.operationalWindows)}
           </p>
         </section>
       ) : null}
 
-      {report.exceedance?.length ? (
+      {false && report.exceedance?.length ? (
         <section className="panel-block exceedance-section">
           <div className="panel-head">
             <h3>Overall exceedance probability</h3>
@@ -1134,7 +1693,7 @@ function renderSite(report: SiteReport) {
             threshold value.
           </p>
           <div className="exceedance-grid">
-            {report.exceedance.map((group) => (
+            {report.exceedance?.map((group) => (
               <div key={group.parameter} className="exceedance-card">
                 <div className="exceedance-card-head">
                   <strong>{getParameterDisplayName(group.parameter)}</strong>
@@ -1173,9 +1732,9 @@ function renderSite(report: SiteReport) {
         </section>
       ) : null}
 
-      {report.monthlyExceedance ? (
+      {false && report.monthlyExceedance ? (
         <MonthlyExceedanceSection
-          monthlyExceedance={report.monthlyExceedance}
+          monthlyExceedance={report.monthlyExceedance!}
           recommendations={report.monthlyExceedanceRecommendations}
         />
       ) : null}
@@ -1768,7 +2327,7 @@ export default function App() {
                 <div className="status-card">Loading workbook data...</div>
               ) : null}
               {selectedReport ? <ReportCharts report={selectedReport} /> : null}
-              {selectedReport?.slug === "musaffah-port" ? (
+              {false && selectedReport?.slug === "musaffah-port" ? (
                 <Suspense
                   fallback={
                     <div className="status-card">
@@ -1779,7 +2338,7 @@ export default function App() {
                   <WindRoseChart />
                 </Suspense>
               ) : null}
-              {selectedReport?.slug === "musaffah-port" ? (
+              {false && selectedReport?.slug === "musaffah-port" ? (
                 <Suspense
                   fallback={
                     <div className="status-card">

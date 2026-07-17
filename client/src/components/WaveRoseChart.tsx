@@ -154,6 +154,7 @@ export default function WaveRoseChart({
     return <div className="status-card">Loading wave rose analysis...</div>;
   }
 
+  // Rose-specific recommendations are intentionally hidden.
   return (
     <div className="wave-rose-container">
       <RoseChart
@@ -163,12 +164,6 @@ export default function WaveRoseChart({
         cardClassName="wave-height-card"
         dataPeriod="1985-2000"
         note="Wave height distribution by direction. Use this to identify the directions that most often contribute to sea-state limits."
-        recommendations={[
-          "Predominant wave approach from the NNW sector should be considered when planning vessel heading and barge alignment during load-in/load-out operations.",
-          "Wave conditions are dominated by the 0.2-0.4 m height band, indicating generally favorable sea states for routine marine activities.",
-          "Larger wave heights occur infrequently; however, forecast wave conditions should be reviewed before critical lifting or cargo transfer operations.",
-          "Mooring arrangements should account for the dominant NNW wave direction to minimize vessel motions alongside the berth or barge.",
-        ]}
         valueMode="percent"
       />
       <RoseChart
@@ -178,12 +173,6 @@ export default function WaveRoseChart({
         cardClassName="wave-period-card"
         dataPeriod="1985-2000"
         note="Peak wave period distribution by direction. Longer period bands can indicate greater vessel motion sensitivity even when wave height is moderate."
-        recommendations={[
-          "Predominant wave periods approach from the NNW sector, indicating that vessel motions are likely to be influenced primarily by waves arriving from this direction.",
-          "Short wave periods of 0-3 s dominate the wave climate, suggesting generally limited vessel response under normal operating conditions.",
-          "Although long-period waves are uncommon, forecast wave periods should be verified before heavy lifts, as longer-period swell can increase vessel motions even under moderate wave heights.",
-          "Consider both wave height and wave period together when assessing operational weather windows, as moderate wave heights combined with longer periods may still affect crane and vessel performance.",
-        ]}
         valueMode="percent"
       />
     </div>

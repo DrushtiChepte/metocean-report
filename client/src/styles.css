@@ -15,9 +15,9 @@
   --accent-2: #9a6700;
   --danger: #b42318;
   --shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
-  --radius-xl: 28px;
-  --radius-lg: 20px;
-  --radius-md: 14px;
+  --radius-xl: 24px;
+  --radius-lg: 10px;
+  --radius-md: 5px;
 }
 
 * {
@@ -526,7 +526,7 @@ select {
 .location-name {
   min-width: 0;
   width: 100%;
-
+  font-weight: 400;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -877,9 +877,9 @@ select {
   margin: 12px 0 0;
   padding: 13px 15px;
   border-radius: var(--radius-md);
-  background: #fef7df;
-  border: 1px solid #f5d98b;
-  color: #713f12;
+  background: #f4f8e8;
+  border: 1px solid #d7e8a5;
+  color: #365314;
   font-size: 0.88rem;
   line-height: 1.48;
 }
@@ -889,7 +889,7 @@ select {
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
-  color: #854d0e;
+  color: #3f6212;
   font-size: 0.9rem;
   letter-spacing: 0.02em;
 }
@@ -918,6 +918,31 @@ select {
 
 .monthly-recommendation .recommendation-title {
   color: #3f6212;
+}
+
+.ai-operational-recommendation {
+  margin-top: 4px;
+}
+
+.recommendation-section + .recommendation-section {
+  margin-top: 11px;
+}
+
+.recommendation-section > strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #3f6212;
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.recommendation-section p {
+  margin: 0;
+}
+
+.recommendation-section p + p {
+  margin-top: 5px;
 }
 
 .wind-rose-layout {
@@ -1019,6 +1044,65 @@ select {
   border: 1px solid var(--line);
   border-radius: var(--radius-xl);
   background: var(--surface-main);
+}
+
+.parameter-accordion-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.parameter-accordion {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+}
+
+.parameter-accordion-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 58px;
+  padding: 0 20px;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 800;
+  list-style: none;
+}
+
+.parameter-accordion-summary::-webkit-details-marker {
+  display: none;
+}
+
+.parameter-accordion-summary::after {
+  content: "+";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 999px;
+  color: #334155;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.parameter-accordion[open] > .parameter-accordion-summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.parameter-accordion[open] > .parameter-accordion-summary::after {
+  content: "-";
+}
+
+.parameter-accordion-body {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  background: rgba(248, 250, 252, 0.7);
 }
 
 .hero-copy,
@@ -1323,6 +1407,7 @@ select {
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 14px;
+  text-align: center;
 }
 
 .panel-head h3,
@@ -1332,6 +1417,7 @@ select {
   font-size: 1.14rem;
   font-weight: 800;
   letter-spacing: -0.01em;
+  text-align: center;
 }
 
 .report-body > .panel-block > .panel-head {

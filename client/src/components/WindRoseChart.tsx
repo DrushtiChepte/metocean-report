@@ -130,6 +130,7 @@ export default function WindRoseChart({
     return <div className="status-card">Loading wind rose analysis...</div>;
   }
 
+  // Rose-specific recommendations are intentionally hidden.
   return (
     <RoseChart
       title="Wind Rose Analysis"
@@ -139,12 +140,6 @@ export default function WindRoseChart({
       cardClassName="wind-rose-card"
       dataPeriod="1985-2000"
       note="The wind rose summarizes the distribution of wind direction and speed, highlighting the prevailing wind directions and the frequency of stronger wind conditions."
-      recommendations={[
-        "Prevailing WNW winds should be considered when selecting vessel or barge orientation during load-in/load-out operations.",
-        "Wind conditions are predominantly light to moderate, indicating favorable weather windows for routine lifting activities.",
-        "Schedule critical heavy lifts during forecast periods with lower wind speeds to maximize operational safety.",
-        "Continue monitoring short-term weather forecasts, particularly when stronger WNW winds are predicted.",
-      ]}
     />
   );
 }

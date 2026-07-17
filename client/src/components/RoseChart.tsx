@@ -356,7 +356,7 @@ function buildRoseFigure({
   const config: Partial<Config> = {
     displaylogo: false,
     responsive: true,
-    displayModeBar: false,
+    displayModeBar: true,
     toImageButtonOptions: {
       format: "png",
       scale: 2,
