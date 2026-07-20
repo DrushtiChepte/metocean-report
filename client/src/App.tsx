@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import HarborMap from "./components/HarborMap";
+import AgentDashboardBlock from "./components/AgentDashboardBlock";
 import MonthlyTrendChart, {
   type MonthlyStat,
 } from "./components/MonthlyTrendChart";
@@ -1185,6 +1186,10 @@ function buildParameterAnalyses(report: SiteReport) {
           );
         });
       const content: ReactNode[] = [];
+
+      if (config.key === "wind") {
+        content.push(<AgentDashboardBlock key={`${config.key}-agent-block`} />);
+      }
 
       if (monthlyMetrics.length) {
         content.push(
