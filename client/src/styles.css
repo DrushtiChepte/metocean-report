@@ -661,7 +661,7 @@ select {
   display: grid;
   gap: 18px;
   padding: 22px 24px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(15, 23, 42, 0.445);
   background: rgba(255, 255, 255, 0.92);
 }
 
@@ -725,16 +725,18 @@ select {
   min-height: 80px;
   width: 100%;
   padding: 18px 20px;
-  background: var(--surface-main);
-  border: 1px solid rgba(var(--accent-rgb));
+  /* background: var(--surface-main); */
+  background: var(--bg-accent);
+  border: 1px solid rgba(var(--accent-rgb), 0.35);
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.06);
   border-radius: 5px;
   box-shadow: 0 10px 26px rgba(var(--accent-rgb), 0.02);
   overflow: hidden;
   text-align: center;
 }
 
-.summary-kpi + .summary-kpi {
-  border-left: 1px solid rgba(var(--accent-rgb));
+.summary-kpi {
+  border-left: 2px solid rgba(var(--accent-rgb));
 }
 
 .summary-kpi:nth-child(2) .summary-kpi-icon,
@@ -2375,7 +2377,7 @@ select {
 
 .eva-accordion-body .digitized-table th,
 .eva-accordion-body .digitized-table td {
-  padding: 13px 16px;
+  padding: 8px 16px;
   vertical-align: middle;
   line-height: 1.4;
 }
@@ -2403,11 +2405,11 @@ select {
 }
 
 .eva-accordion-body .digitized-table tbody tr:nth-child(even) {
-  background: rgba(15, 23, 42, 0.025);
+  background: rgba(15, 23, 42, 0.062);
 }
 
 .eva-accordion-body .digitized-table tbody tr:hover {
-  background: rgba(24, 95, 165, 0.06);
+  background: rgba(24, 94, 165, 0.096);
 }
 
 .eva-accordion-body .digitized-table tbody tr:last-child td {
