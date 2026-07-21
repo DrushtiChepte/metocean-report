@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Plot from "react-plotly.js";
+import CollapsibleRecommendationBox from "./CollapsibleRecommendationBox";
 import type { Config, Data, Layout } from "plotly.js";
 
 export type RoseClass = {
@@ -531,17 +532,16 @@ export default function RoseChart({
       {note ? <p className="chart-note">{note}</p> : null}
       {insight ? <p className="chart-insight">{insight}</p> : null}
       {recommendations?.length ? (
-        <div className="recommendation-box chart-recommendation">
-          <strong className="recommendation-title">
-            <img src="/recommendation-robot.png" alt="" aria-hidden="true" />
-            <span>Recommendations</span>
-          </strong>
+        <CollapsibleRecommendationBox
+          title="Recommendations"
+          className="chart-recommendation"
+        >
           <ul>
             {recommendations.map((recommendation) => (
               <li key={recommendation}>{recommendation}</li>
             ))}
           </ul>
-        </div>
+        </CollapsibleRecommendationBox>
       ) : null}
     </section>
   );

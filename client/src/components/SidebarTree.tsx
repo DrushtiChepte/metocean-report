@@ -120,7 +120,7 @@ export default function SidebarTree({
     <div className="sidebar-tree-shell">
       <div className="sidebar-tree-header">
         <span className="sidebar-tree-chip">Projects</span>
-        <p>Browse the project tree for sites, routes, and metadata.</p>
+        {/* <p>Browse the project tree for sites, routes, and metadata.</p> */}
       </div>
 
       <div className="sidebar-tree">

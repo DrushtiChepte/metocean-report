@@ -11,6 +11,7 @@ import {
 } from "react";
 import HarborMap from "./components/HarborMap";
 import AgentDashboardBlock from "./components/AgentDashboardBlock";
+import CollapsibleRecommendationBox from "./components/CollapsibleRecommendationBox";
 import MonthlyTrendChart, {
   type MonthlyStat,
 } from "./components/MonthlyTrendChart";
@@ -299,15 +300,6 @@ function MetricCard({ label, value }: { label: string; value: string }) {
       <span>{label}</span>
       <strong>{value}</strong>
     </div>
-  );
-}
-
-function RecommendationTitle({ children }: { children: ReactNode }) {
-  return (
-    <strong className="recommendation-title">
-      <img src="/recommendation-robot.png" alt="" aria-hidden="true" />
-      <span>{children}</span>
-    </strong>
   );
 }
 
@@ -810,8 +802,10 @@ function MonthlyExceedanceSection({
             No monthly exceedance rows are available for this parameter.
           </div>
         )}
-        <div className="recommendation-box monthly-exceedance-recommendation">
-          <RecommendationTitle>Recommendations</RecommendationTitle>
+        <CollapsibleRecommendationBox
+          title="Recommendations"
+          className="monthly-exceedance-recommendation"
+        >
           {selectedRecommendations.length ? (
             <ul>
               {selectedRecommendations.map((recommendation) => (
@@ -821,7 +815,7 @@ function MonthlyExceedanceSection({
           ) : (
             <p>No recommendations are available for this parameter.</p>
           )}
-        </div>
+        </CollapsibleRecommendationBox>
       </div>
     </section>
   );
@@ -1121,8 +1115,10 @@ function AiOperationalRecommendation({
   const recommendation = aiOperationalRecommendations[parameterKey];
 
   return (
-    <div className="recommendation-box ai-operational-recommendation">
-      <RecommendationTitle>AI Operational Assessment</RecommendationTitle>
+    <CollapsibleRecommendationBox
+      title="AI Operational Assessment"
+      className="ai-operational-recommendation"
+    >
       <div className="recommendation-section">
         <strong>Overall Assessment</strong>
         {recommendation.assessment.map((item) => (
@@ -1137,7 +1133,7 @@ function AiOperationalRecommendation({
           ))}
         </ul>
       </div>
-    </div>
+    </CollapsibleRecommendationBox>
   );
 }
 
@@ -1392,61 +1388,65 @@ function ExtremeValuePanel({
   }>;
 }) {
   return (
-    <section className="panel-block">
-      <div className="panel-head">
-        <h3>Extreme value analysis</h3>
-      </div>
-      <div className="table-scroll">
-        <table className="digitized-table">
-          <thead>
-            <tr>
-              <th>Label</th>
-              <th>Units</th>
-              <th>RP1</th>
-              <th>RP10</th>
-              <th>RP50</th>
-              <th>RP100</th>
-              <th>Method</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.rowKey}>
-                <td>{row.key}</td>
-                <td>{formatNumber(row.units)}</td>
-                <td>{formatNumber(row.rp1)}</td>
-                <td>{formatNumber(row.rp10)}</td>
-                <td>{formatNumber(row.rp50)}</td>
-                <td>{formatNumber(row.rp100)}</td>
-                <td>{formatNumber(row.method)}</td>
+    <details className="panel-block eva-accordion">
+      <summary className="eva-accordion-summary">
+        <span>Extreme Value Analysis</span>
+      </summary>
+      <div className="eva-accordion-body">
+        <div className="table-scroll">
+          <table className="digitized-table">
+            <thead>
+              <tr>
+                <th>Label</th>
+                <th>Units</th>
+                <th>RP1</th>
+                <th>RP10</th>
+                <th>RP50</th>
+                <th>RP100</th>
+                <th>Method</th>
               </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.rowKey}>
+                  <td>{row.key}</td>
+                  <td>{formatNumber(row.units)}</td>
+                  <td>{formatNumber(row.rp1)}</td>
+                  <td>{formatNumber(row.rp10)}</td>
+                  <td>{formatNumber(row.rp50)}</td>
+                  <td>{formatNumber(row.rp100)}</td>
+                  <td>{formatNumber(row.method)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="monthly-trend-note">
+          <span>
+            <strong>RP1</strong> = 1 year return period
+          </span>
+          <span>
+            <strong>RP10</strong> = 10 year return period
+          </span>
+          <span>
+            <strong>RP50</strong> = 50 year return period
+          </span>
+          <span>
+            <strong>RP100</strong> = 100 year return period
+          </span>
+        </div>
+        <CollapsibleRecommendationBox
+          title="Recommendations"
+          className="extreme-value-recommendation"
+        >
+          <ul>
+            {extremeValueRecommendations.map((recommendation) => (
+              <li key={recommendation}>{recommendation}</li>
             ))}
-          </tbody>
-        </table>
+          </ul>
+        </CollapsibleRecommendationBox>
       </div>
-      <div className="monthly-trend-note">
-        <span>
-          <strong>RP1</strong> = 1 year return period
-        </span>
-        <span>
-          <strong>RP10</strong> = 10 year return period
-        </span>
-        <span>
-          <strong>RP50</strong> = 50 year return period
-        </span>
-        <span>
-          <strong>RP100</strong> = 100 year return period
-        </span>
-      </div>
-      <div className="recommendation-box extreme-value-recommendation">
-        <RecommendationTitle>Recommendations</RecommendationTitle>
-        <ul>
-          {extremeValueRecommendations.map((recommendation) => (
-            <li key={recommendation}>{recommendation}</li>
-          ))}
-        </ul>
-      </div>
-    </section>
+    </details>
   );
 }
 
@@ -1581,8 +1581,10 @@ function renderSite(report: SiteReport) {
                   />
                 </div>
                 {getMonthlyRecommendations(metric.metric).length ? (
-                  <div className="recommendation-box monthly-recommendation">
-                    <RecommendationTitle>Recommendations</RecommendationTitle>
+                  <CollapsibleRecommendationBox
+                    title="Recommendations"
+                    className="monthly-recommendation"
+                  >
                     <ul>
                       {getMonthlyRecommendations(metric.metric).map(
                         (recommendation) => (
@@ -1590,7 +1592,7 @@ function renderSite(report: SiteReport) {
                         ),
                       )}
                     </ul>
-                  </div>
+                  </CollapsibleRecommendationBox>
                 ) : null}
               </div>
             ))}
@@ -1636,14 +1638,16 @@ function renderSite(report: SiteReport) {
               <SeasonalChartCard key={metric.metric} metric={metric} />
             ))}
           </div>
-          <div className="recommendation-box seasonal-recommendation">
-            <RecommendationTitle>Recommendations</RecommendationTitle>
+          <CollapsibleRecommendationBox
+            title="Recommendations"
+            className="seasonal-recommendation"
+          >
             <ul>
               {seasonalRecommendations.map((recommendation) => (
                 <li key={recommendation}>{recommendation}</li>
               ))}
             </ul>
-          </div>
+          </CollapsibleRecommendationBox>
         </section>
       ) : null}
 
@@ -1735,14 +1739,16 @@ function renderSite(report: SiteReport) {
           <p className="panel-insight">
             {getExceedanceInsight(report.exceedance)}
           </p>
-          <div className="recommendation-box exceedance-recommendation">
-            <RecommendationTitle>Recommendations</RecommendationTitle>
+          <CollapsibleRecommendationBox
+            title="Recommendations"
+            className="exceedance-recommendation"
+          >
             <ul>
               {overallExceedanceRecommendations.map((recommendation) => (
                 <li key={recommendation}>{recommendation}</li>
               ))}
             </ul>
-          </div>
+          </CollapsibleRecommendationBox>
         </section>
       ) : null}
 
